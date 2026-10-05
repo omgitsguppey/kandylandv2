@@ -1,5 +1,10 @@
 "use client";
 
+import { Textarea } from "@/components/ui/textarea";
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -300,10 +305,10 @@ export function AdminSupportQueue() {
                             <div className="min-w-0"><dt className="text-muted-foreground">Needs action</dt><dd className="mt-1 text-lg font-semibold tabular-nums text-foreground">{supportTurnCountLabel}</dd></div>
                             <div className="min-w-0"><dt className="text-muted-foreground">Waiting on user</dt><dd className="mt-1 text-lg font-semibold tabular-nums text-foreground">{userTurnCountLabel}</dd></div>
                         </dl>
-                        <details className="min-w-0">
-                            <summary className="min-h-11 cursor-pointer content-center [overflow-wrap:anywhere] text-base font-medium text-foreground">
+                        <Disclosure className="min-w-0">
+                            <DisclosureSummary className="min-h-11 cursor-pointer content-center [overflow-wrap:anywhere] text-base font-medium text-foreground">
                                 Thread status: {statusOptions.find((entry) => entry.id === statusFilter)?.label}
-                            </summary>
+                            </DisclosureSummary>
                             <div className="mt-2 grid min-w-0 gap-1" role="group" aria-label="Thread status options">
                                 {statusOptions.map((entry) => <Button key={entry.id} type="button" variant={statusFilter === entry.id ? "default" : "ghost"}
                                     className="max-w-full justify-start whitespace-normal text-left text-base" aria-pressed={statusFilter === entry.id}
@@ -314,7 +319,7 @@ export function AdminSupportQueue() {
                                         disclosure?.querySelector("summary")?.focus();
                                     }}>{entry.label}</Button>)}
                             </div>
-                        </details>
+                        </Disclosure>
                         {userIdFilter ? <p className="break-words text-sm leading-relaxed text-muted-foreground">Showing this account. <Link href="/admin/support" className={cn(buttonVariants({variant:"ghost",size:"sm"}),"whitespace-normal text-primary")}>View full inbox</Link></p> : null}
                         {threadsError ? <p role="alert" className="flex min-w-0 items-start gap-2 break-words text-sm leading-relaxed text-foreground"><AlertTriangle className="mt-1 size-4 shrink-0" aria-hidden="true" /><span className="min-w-0 [overflow-wrap:anywhere]">{getAdminSupportSafeErrorMessage(threadsError, "Support thread list failed.")}</span></p> : null}
                     </div>
@@ -325,7 +330,7 @@ export function AdminSupportQueue() {
                                     const active = thread.id === selectedThreadId;
                                     const primaryIdentity = thread.userHandle ? `@${thread.userHandle}` : thread.userDisplayName || thread.userEmail || thread.userId;
                                     return <li key={thread.id} className="min-w-0 border-b border-border last:border-b-0">
-                                        <button type="button" onClick={() => selectThread(thread.id)} aria-current={active ? "true" : undefined}
+                                        <Button variant="ghost" type="button" onClick={() => selectThread(thread.id)} aria-current={active ? "true" : undefined}
                                             className={cn("w-full min-w-0 min-h-11 rounded-lg p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",active ? "bg-secondary text-foreground" : "text-foreground hover:bg-secondary")}>
                                             <div className="flex min-w-0 items-start gap-2">
                                                 <p className="min-w-0 flex-1 [overflow-wrap:anywhere] text-base font-semibold leading-snug">{thread.subject || "Support thread"}</p>
@@ -339,7 +344,7 @@ export function AdminSupportQueue() {
                                                 <span>{formatRelativeTime(thread.lastMessageAt)}</span>
                                                 {thread.unreadForAdmin ? <span className="font-semibold text-primary">Unread</span> : null}
                                             </div>
-                                        </button>
+                                        </Button>
                                     </li>;
                                 })}
                             </ul>
@@ -381,7 +386,7 @@ export function AdminSupportQueue() {
                             </section>
                             <div className="min-w-0 space-y-3 border-t border-border p-4 @min-[48rem]/support:p-5">
                                 <label className="block min-w-0 space-y-2 text-sm font-medium text-foreground"><span>Reply</span>
-                                    <textarea value={reply} onChange={(event) => { if (!selectedThreadId) return; const value = event.target.value; const actorId = user?.uid ?? null; setReplyState((current) => ({ actorId, drafts: { ...(current.actorId === actorId ? current.drafts : {}), [selectedThreadId]: value } })); }} rows={3}
+                                    <Textarea value={reply} onChange={(event) => { if (!selectedThreadId) return; const value = event.target.value; const actorId = user?.uid ?? null; setReplyState((current) => ({ actorId, drafts: { ...(current.actorId === actorId ? current.drafts : {}), [selectedThreadId]: value } })); }} rows={3}
                                         disabled={isLocalAdminUiTestSession || Boolean(messagesError) || isLoadingMessages} placeholder="Write the next step or resolution..."
                                         className="min-h-28 w-full resize-y rounded-lg border border-input bg-background p-3 text-base font-normal leading-relaxed text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50" />
                                 </label>

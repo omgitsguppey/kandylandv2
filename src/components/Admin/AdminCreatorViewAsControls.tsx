@@ -1,5 +1,9 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/Button";
+
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Eye, RotateCcw } from "lucide-react";
@@ -94,7 +98,7 @@ export function AdminCreatorViewAsControls({
   };
 
   return (
-    <div className="w-full rounded-2xl border border-white/10 bg-black/20 p-3 sm:w-auto">
+    <div className="w-full rounded-2xl border border-border bg-background/20 p-3 sm:w-auto">
       <div className="flex flex-wrap items-center gap-2">
         {profileHref ? (
           <Link
@@ -108,40 +112,40 @@ export function AdminCreatorViewAsControls({
                 currentRoute: "/admin/roster",
               }));
             }}
-            className="inline-flex min-h-10 items-center rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white"
+            className="inline-flex min-h-10 items-center rounded-full border border-border bg-background/35 px-4 text-sm font-semibold text-foreground"
           >
             View fan profile
           </Link>
         ) : null}
         {isViewingThisCreator ? (
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={() => void endViewAsCreator("Return from roster")}
-            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white px-4 text-sm font-bold text-black"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-foreground px-4 text-sm font-semibold text-background"
           >
             <RotateCcw className="h-4 w-4" />
             Return to admin
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={() => void handleStart()}
             disabled={saving || reason.trim().length < 4}
-            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-brand-purple px-4 text-sm font-bold text-white disabled:opacity-50"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-foreground disabled:opacity-50"
           >
             <Eye className="h-4 w-4" />
             {saving ? "Starting..." : "View as creator"}
-          </button>
+          </Button>
         )}
       </div>
       {!isViewingThisCreator ? (
         <label className="mt-3 block">
           <span className="sr-only">View-as reason</span>
-          <input
+          <Input
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             placeholder="QA reason"
-            className="w-full rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-sm text-white outline-none focus:border-brand-purple/60"
+            className="w-full rounded-2xl border border-border bg-background/35 px-3 py-2 text-sm text-foreground outline-none focus:border-primary/60"
           />
         </label>
       ) : null}

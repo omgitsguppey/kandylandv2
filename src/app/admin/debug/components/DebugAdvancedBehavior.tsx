@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { Pill, StatCard, Section, ScrollWrap, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 import { formatRecentActivity as formatRelative } from "./DebugTime";
 
@@ -91,8 +95,8 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
             >
                 <div className="grid gap-4 lg:grid-cols-1">
                     <div className="space-y-3">
-                        <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Snapshot status</p>
+                        <div className="rounded-[1rem] border border-border bg-secondary p-4">
+                            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Snapshot status</p>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 <Pill label="Users" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.userProfiles)} truthState={behavioralTruthState} badgeLabel={behavioralBadgeLabel} />
                                 <Pill label="Guests" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.guestProfiles)} truthState={behavioralTruthState} badgeLabel={behavioralBadgeLabel} />
@@ -102,11 +106,11 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                 <Pill label="ML validation" value={behaviorPanelLoaded ? mlValidationLabel : DEBUG_VALUE_NOT_LOADED} tone={panel?.mlValidationState === "active" ? "good" : panel?.mlValidationState === "missing" ? "bad" : "warn"} truthState={behaviorPanelLoaded ? (panel?.mlValidationState === "active" ? "live" : panel?.mlValidationState === "missing" ? "failed" : "degraded") : behavioralTruthState} badgeLabel={behaviorPanelLoaded ? "LOADED" : behavioralBadgeLabel} />
                                 <Pill label="Connected modules" value={behaviorPanelLoaded ? `${panel?.connectedModuleCount ?? 0}/9` : DEBUG_VALUE_NOT_LOADED} tone={behaviorPanelLoaded && (panel?.missingModuleCount ?? 0) === 0 ? "good" : "warn"} truthState={behaviorPanelLoaded ? ((panel?.missingModuleCount ?? 0) === 0 ? "live" : "degraded") : behavioralTruthState} badgeLabel={behaviorPanelLoaded ? "LOADED" : behavioralBadgeLabel} />
                             </div>
-                            <p className="mt-3 text-sm text-gray-300">
+                            <p className="mt-3 text-sm text-muted-foreground">
                                 Latest rebuild {panel?.latestRebuildAtUtc ? formatRelative(Date.parse(panel.latestRebuildAtUtc)) : "unknown"}.
                                 Source window starts {panel?.sourceWindowStartUtc || "unknown"} and ends {panel?.sourceWindowEndUtc || "unknown"}.
                             </p>
-                            <p className="mt-2 text-sm text-gray-400">{panel?.overallFreshnessExplanation || "Behavioral freshness is not available."}</p>
+                            <p className="mt-2 text-sm text-muted-foreground">{panel?.overallFreshnessExplanation || "Behavioral freshness is not available."}</p>
                             <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
                                 <StatCard label="Sample size" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.sampleSize)} meta={`${behavioralSourceStatus?.nextAction || "ML stays deterministic below 50 samples and experimental below 200."}`} truthState={behavioralTruthState} />
                                 <StatCard label="Precision@5" value={countWhenPanelLoaded(behaviorPanelLoaded, panel?.validationMetrics?.precisionAt5)} meta={`Baseline ${behaviorPanelLoaded ? panel?.validationMetrics?.baselineComparison || "not_tested" : "not loaded"}`} truthState={behaviorPanelLoaded ? "live" : behavioralTruthState} />
@@ -117,13 +121,13 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                     </div>
 
                     <ScrollWrap>
-                        <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                        <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                             {dropRows.length ? dropRows.map((entry: any) => (
                                 <div key={entry.dropId} className="space-y-2 px-4 py-3">
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
-                                            <p className="font-semibold text-white">{entry.dropTitle || entry.dropId}</p>
-                                            <p className="text-xs text-gray-400">{entry.creatorName || "Unknown creator"} - {entry.dropId}</p>
+                                            <p className="font-semibold text-foreground">{entry.dropTitle || entry.dropId}</p>
+                                            <p className="text-xs text-muted-foreground">{entry.creatorName || "Unknown creator"} - {entry.dropId}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             <Pill label="Freshness" value={entry.profileFreshnessState || "unknown"} tone={entry.profileFreshnessState === "fresh" ? "good" : "warn"} truthState={entry.profileFreshnessState === "fresh" ? "live" : "degraded"} badgeLabel="LOADED" />
@@ -149,13 +153,13 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                         <Pill label="Suppression" value={entry.suppressionScore === null || entry.suppressionScore === undefined ? "n/a" : `${entry.suppressionScore}%`} tone={(entry.suppressionScore ?? 0) > 25 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
                                         <Pill label="Final rank" value={entry.finalRankScore === null || entry.finalRankScore === undefined ? "n/a" : entry.finalRankScore} truthState="live" badgeLabel="LOADED" />
                                     </div>
-                                    <p className="text-xs text-gray-300">Confidence formula: {entry.confidenceFormula}</p>
-                                    <p className="text-xs text-gray-300">Completion: {entry.completionExplanation}</p>
-                                    <p className="text-xs text-gray-300">Negative: {entry.negativeExplanation}</p>
-                                    <p className="text-xs text-gray-400">Top reasons: {(entry.topReasons || []).length ? entry.topReasons.join(" - ") : "No strong ranking reason surfaced in the sampled profile."}</p>
-                                    <p className="text-xs text-gray-500">Missing inputs: {(entry.missingInputs || []).length ? entry.missingInputs.join(", ") : "none"}</p>
+                                    <p className="text-xs text-muted-foreground">Confidence formula: {entry.confidenceFormula}</p>
+                                    <p className="text-xs text-muted-foreground">Completion: {entry.completionExplanation}</p>
+                                    <p className="text-xs text-muted-foreground">Negative: {entry.negativeExplanation}</p>
+                                    <p className="text-xs text-muted-foreground">Top reasons: {(entry.topReasons || []).length ? entry.topReasons.join(" - ") : "No strong ranking reason surfaced in the sampled profile."}</p>
+                                    <p className="text-xs text-muted-foreground">Missing inputs: {(entry.missingInputs || []).length ? entry.missingInputs.join(", ") : "none"}</p>
                                 </div>
-                            )) : <div className="px-4 py-4 text-sm text-amber-100">No behavioral drop-intelligence rows are available yet. Rebuild the snapshots or wait for the scheduled pass.</div>}
+                            )) : <div className="px-4 py-4 text-sm text-warning">No behavioral drop-intelligence rows are available yet. Rebuild the snapshots or wait for the scheduled pass.</div>}
                         </div>
                     </ScrollWrap>
                 </div>
@@ -187,8 +191,8 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                     data-telemetry-truth-open-repairs={recoveryPanel?.openRepairCount ?? 0}
                 >
                     <div className="space-y-3">
-                        <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">Global truth summary</p>
+                        <div className="rounded-[1rem] border border-border bg-secondary p-4">
+                            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Global truth summary</p>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 <Pill label="Freshness" value={valueWhenPanelLoaded(recoveryPanelLoaded, recoveryPanel?.freshnessState)} tone={recoveryPanel?.freshnessState === "live" ? "good" : "warn"} truthState={recoveryPanelLoaded ? (recoveryPanel?.freshnessState === "live" ? "live" : "degraded") : recoveryTruthState} badgeLabel={recoveryPanelLoaded ? "LOADED" : recoveryBadgeLabel} />
                                 <Pill label="Last rebuild" value={recoveryPanelLoaded && recoveryPanel?.lastRebuildAtUtc ? formatRelative(Date.parse(recoveryPanel.lastRebuildAtUtc)) : DEBUG_VALUE_NOT_LOADED} tone={recoveryPanel?.freshnessState === "live" ? "good" : "warn"} truthState={recoveryPanelLoaded ? (recoveryPanel?.freshnessState === "live" ? "live" : "degraded") : recoveryTruthState} badgeLabel={recoveryPanelLoaded ? "LOADED" : recoveryBadgeLabel} />
@@ -208,11 +212,11 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                 <Pill label="Recovered sessions" value={recoveryPanel?.recoveredSessionCount ?? 0} tone={(recoveryPanel?.recoveredSessionCount ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                                 <Pill label="Estimated views" value={recoveryPanel?.estimatedViews ?? 0} tone={(recoveryPanel?.estimatedViews ?? 0) > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
                             </div>
-                            <p className="mt-3 text-sm text-gray-300">
+                            <p className="mt-3 text-sm text-muted-foreground">
                                 Last rebuild {recoveryPanel?.lastRebuildAtUtc ? formatRelative(Date.parse(recoveryPanel.lastRebuildAtUtc)) : "unknown"}.
                                 Observed, checked, final, and estimated layers stay separate and explicitly labeled.
                             </p>
-                            <p className="mt-2 text-sm text-gray-400">
+                            <p className="mt-2 text-sm text-muted-foreground">
                                 Verified watch excludes estimated timeout recovery. Final reporting may still include estimated watch when quality is mixed or estimated.
                             </p>
                             <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
@@ -227,7 +231,7 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                 ))}
                             </div>
                             {!!(recoveryPanel?.warnings || []).length && (
-                                <div className="mt-3 space-y-1 rounded-xl border border-amber-400/20 bg-amber-400/10 p-3 text-sm text-amber-100">
+                                <div className="mt-3 space-y-1 rounded-xl border border-warning/20 bg-warning/10 p-3 text-sm text-warning">
                                     {(recoveryPanel?.warnings || []).map((warning: string) => (
                                         <p key={warning}>{warning}</p>
                                     ))}
@@ -236,13 +240,13 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                         </div>
 
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                                 {(recoveryPanel?.estimatedWatchRecoveryGroups || []).length ? (recoveryPanel?.estimatedWatchRecoveryGroups || []).map((entry: any) => (
                                     <div key={`${entry.recoveryKind}:${entry.provenance}:${entry.recoveredWatchSecondsPerSession?.mode ?? 0}`} className="space-y-3 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">Estimated session ends - {entry.provenance}</p>
-                                                <p className="text-xs text-gray-400">{entry.explanation}</p>
+                                                <p className="font-semibold text-foreground">Estimated session ends - {entry.provenance}</p>
+                                                <p className="text-xs text-muted-foreground">{entry.explanation}</p>
                                             </div>
                                             <div className="flex flex-wrap gap-2">
                                                 <Pill label="Layer" value={entry.layer || "estimated"} tone="warn" truthState="degraded" badgeLabel="LOADED" />
@@ -263,44 +267,44 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                             <Pill label="First seen" value={entry.firstSeenAtUtc ? formatRelative(Date.parse(entry.firstSeenAtUtc)) : "unknown"} truthState="live" badgeLabel="LOADED" />
                                             <Pill label="Last seen" value={entry.lastSeenAtUtc ? formatRelative(Date.parse(entry.lastSeenAtUtc)) : "unknown"} truthState="live" badgeLabel="LOADED" />
                                         </div>
-                                        <p className="text-xs text-gray-300">Estimation formula: {entry.estimationFormula}</p>
-                                        <p className="text-xs text-gray-300">Confidence factors: {entry.confidenceFactors}</p>
-                                        <p className="text-xs text-gray-300">
+                                        <p className="text-xs text-muted-foreground">Estimation formula: {entry.estimationFormula}</p>
+                                        <p className="text-xs text-muted-foreground">Confidence factors: {entry.confidenceFactors}</p>
+                                        <p className="text-xs text-muted-foreground">
                                             {entry.completionRepairCount > 0
                                                 ? `Completion repairs changed ${entry.completionRepairCount} state(s).`
                                                 : "No completion state changed. This recovery estimated session end time only; it did not mark content complete."}
                                         </p>
-                                        <details className="rounded-xl border border-white/10 bg-black/10 p-3">
-                                            <summary className="cursor-pointer text-sm text-gray-200">Affected sessions (first 5)</summary>
+                                        <Disclosure className="rounded-xl border border-border bg-background/10 p-3">
+                                            <DisclosureSummary className="cursor-pointer text-sm text-foreground">Affected sessions (first 5)</DisclosureSummary>
                                             <div className="mt-3 space-y-2">
                                                 {(entry.affectedSessionSample || []).map((sample: any) => (
-                                                    <div key={sample.sessionId} className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+                                                    <div key={sample.sessionId} className="rounded-lg border border-border bg-secondary p-3">
                                                         <div className="flex flex-wrap gap-2">
                                                             <Pill label="Session" value={sample.shortSessionId || "unknown"} truthState="live" badgeLabel="LOADED" />
                                                             <Pill label="Confidence" value={`${sample.confidence ?? 0}%`} tone="warn" truthState="live" badgeLabel="LOADED" />
                                                             <Pill label="Recovered watch" value={`${sample.recoveredWatchSeconds ?? 0}s`} truthState="live" badgeLabel="LOADED" />
                                                             <Pill label="Provenance" value={sample.provenance || "unknown"} truthState="live" badgeLabel="LOADED" />
                                                         </div>
-                                                        <p className="mt-2 text-xs text-gray-400">
+                                                        <p className="mt-2 text-xs text-muted-foreground">
                                                             {(sample.dropTitle || sample.dropId || "Unknown drop")} · {(sample.actorDisplayName || sample.userId || "Unknown user")} · {sample.createdAtUtc || "Unknown repair time"}
                                                         </p>
                                                     </div>
                                                 ))}
                                             </div>
-                                        </details>
+                                        </Disclosure>
                                     </div>
-                                )) : <div className="px-4 py-4 text-sm text-emerald-100">No estimated session-end recovery groups are present in the current truth window.</div>}
+                                )) : <div className="px-4 py-4 text-sm text-success">No estimated session-end recovery groups are present in the current truth window.</div>}
                             </div>
                         </ScrollWrap>
 
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                                 {(recoveryPanel?.repairGroups || []).length ? (recoveryPanel?.repairGroups || []).map((entry: any) => (
                                     <div key={`${entry.repairType}:${entry.actionability}`} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.repairType}</p>
-                                                <p className="text-xs text-gray-400">{entry.explanation}</p>
+                                                <p className="font-semibold text-foreground">{entry.repairType}</p>
+                                                <p className="text-xs text-muted-foreground">{entry.explanation}</p>
                                             </div>
                                             <div className="flex flex-wrap gap-2">
                                                 <Pill label="Count" value={entry.count ?? 0} truthState="live" badgeLabel="LOADED" />
@@ -309,14 +313,14 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                             </div>
                                         </div>
                                     </div>
-                                )) : <div className="px-4 py-4 text-sm text-emerald-100">No telemetry repair rows are present in the current truth window.</div>}
+                                )) : <div className="px-4 py-4 text-sm text-success">No telemetry repair rows are present in the current truth window.</div>}
                             </div>
                         </ScrollWrap>
                     </div>
 
                     <div className="space-y-4">
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                                 {(recoveryPanel?.dropRows || []).length ? (recoveryPanel?.dropRows || []).map((entry: any) => (
                                     <div
                                         key={entry.dropId}
@@ -334,11 +338,11 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                     >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.dropTitle || "Unknown drop"}</p>
-                                                <p className="text-xs text-gray-400">
+                                                <p className="font-semibold text-foreground">{entry.dropTitle || "Unknown drop"}</p>
+                                                <p className="text-xs text-muted-foreground">
                                                     Creator: {entry.creatorName || "Unknown creator"} - Drop ID: {entry.shortDropId || "unknown"}
                                                 </p>
-                                                <p className="text-xs text-gray-400">
+                                                <p className="text-xs text-muted-foreground">
                                                     Final reporting views {entry.finalizedViews ?? 0} - watch {entry.watchDurationDisplay || "0s"}
                                                 </p>
                                             </div>
@@ -354,35 +358,35 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                             <Pill label="Estimated/recovered views" value={entry.estimatedViews ?? 0} tone={(entry.estimatedViews ?? 0) > 0 ? "warn" : "neutral"} truthState="live" badgeLabel="LOADED" />
                                             <Pill label="Final reporting views" value={entry.finalizedViews ?? 0} truthState="live" badgeLabel="LOADED" />
                                         </div>
-                                        <p className="text-xs text-gray-300">Observed raw views: {entry.metricExplanation?.rawViews}</p>
-                                        <p className="text-xs text-gray-300">Validated views: {entry.metricExplanation?.validatedViews}</p>
-                                        <p className="text-xs text-gray-300">Estimated/recovered views: {entry.metricExplanation?.estimatedViews}</p>
-                                        <p className="text-xs text-gray-300">Final reporting views: {entry.metricExplanation?.finalizedViews}</p>
-                                        <p className="text-xs text-gray-300">Duplicate rate: {entry.metricExplanation?.duplicateRate}</p>
-                                        <p className="text-xs text-gray-300">Recovery share: {entry.metricExplanation?.repairedPct}</p>
+                                        <p className="text-xs text-muted-foreground">Observed raw views: {entry.metricExplanation?.rawViews}</p>
+                                        <p className="text-xs text-muted-foreground">Validated views: {entry.metricExplanation?.validatedViews}</p>
+                                        <p className="text-xs text-muted-foreground">Estimated/recovered views: {entry.metricExplanation?.estimatedViews}</p>
+                                        <p className="text-xs text-muted-foreground">Final reporting views: {entry.metricExplanation?.finalizedViews}</p>
+                                        <p className="text-xs text-muted-foreground">Duplicate rate: {entry.metricExplanation?.duplicateRate}</p>
+                                        <p className="text-xs text-muted-foreground">Recovery share: {entry.metricExplanation?.repairedPct}</p>
                                         {!!(entry.warnings || []).length && (
-                                            <div className="rounded-xl border border-amber-400/20 bg-amber-400/10 p-3 text-xs text-amber-100">
+                                            <div className="rounded-xl border border-warning/20 bg-warning/10 p-3 text-xs text-warning">
                                                 {(entry.warnings || []).map((warning: string) => (
                                                     <p key={warning}>{warning}</p>
                                                 ))}
                                             </div>
                                         )}
-                                        <details className="rounded-xl border border-white/10 bg-black/10 p-3">
-                                            <summary className="cursor-pointer text-sm text-gray-200">Identity details</summary>
-                                            <div className="mt-3 space-y-2 text-xs text-gray-400">
+                                        <Disclosure className="rounded-xl border border-border bg-background/10 p-3">
+                                            <DisclosureSummary className="cursor-pointer text-sm text-foreground">Identity details</DisclosureSummary>
+                                            <div className="mt-3 space-y-2 text-xs text-muted-foreground">
                                                 <p>dropId: {entry.dropId}</p>
                                                 <p>adminDropHref: {entry.adminDropHref || "none"}</p>
                                                 <p>watchSeconds: {entry.watchSeconds ?? 0}</p>
                                                 <p>dropIdentityState: {entry.dropIdentityState || "missing"}</p>
                                             </div>
-                                        </details>
+                                        </Disclosure>
                                     </div>
-                                )) : <div className="px-4 py-4 text-sm text-amber-100">No per-drop analytics truth rows are available yet. Run the reconciliation job or wait for the scheduled pass.</div>}
+                                )) : <div className="px-4 py-4 text-sm text-warning">No per-drop analytics truth rows are available yet. Run the reconciliation job or wait for the scheduled pass.</div>}
                             </div>
                         </ScrollWrap>
 
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                                 {(recoveryPanel?.userRows || []).length ? (recoveryPanel?.userRows || []).map((entry: any) => (
                                     <div
                                         key={entry.userId || entry.shortUserId}
@@ -400,8 +404,8 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                     >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.userDisplayName || "Unknown user"}</p>
-                                                <p className="text-xs text-gray-400">
+                                                <p className="font-semibold text-foreground">{entry.userDisplayName || "Unknown user"}</p>
+                                                <p className="text-xs text-muted-foreground">
                                                     {entry.username ? `@${entry.username} · ` : ""}UID {entry.shortUserId || "unknown"} · Watch {entry.watchDurationDisplay || formatSecondsLabel(entry.totalWatchSeconds)} · unique viewers {entry.uniqueViewerCount ?? 0}
                                                 </p>
                                             </div>
@@ -418,9 +422,9 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                             <Pill label="Fallback watch" value={formatSecondsLabel(entry.fallbackWatchSeconds)} tone={(entry.fallbackWatchSeconds ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                                             <Pill label="Raw gaps" value={entry.rawGapCount ?? 0} tone={(entry.rawGapCount ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                                         </div>
-                                        <p className="text-xs text-gray-300">{entry.mathExplanation?.totalWatch}</p>
-                                        <p className="text-xs text-gray-300">{entry.mathExplanation?.rawGaps}</p>
-                                        <p className="text-xs text-gray-300">{entry.mathExplanation?.confidence}</p>
+                                        <p className="text-xs text-muted-foreground">{entry.mathExplanation?.totalWatch}</p>
+                                        <p className="text-xs text-muted-foreground">{entry.mathExplanation?.rawGaps}</p>
+                                        <p className="text-xs text-muted-foreground">{entry.mathExplanation?.confidence}</p>
                                         {(entry.qualityReasons || []).length ? (
                                             <div className="flex flex-wrap gap-2">
                                                 {(entry.qualityReasons || []).map((reason: string) => (
@@ -428,9 +432,9 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                                 ))}
                                             </div>
                                         ) : null}
-                                        <details className="rounded-xl border border-white/10 bg-black/10 p-3">
-                                            <summary className="cursor-pointer text-sm text-gray-200">User watch math details</summary>
-                                            <div className="mt-3 space-y-2 text-xs text-gray-400">
+                                        <Disclosure className="rounded-xl border border-border bg-background/10 p-3">
+                                            <DisclosureSummary className="cursor-pointer text-sm text-foreground">User watch math details</DisclosureSummary>
+                                            <div className="mt-3 space-y-2 text-xs text-muted-foreground">
                                                 <p>Verified watch: {formatSecondsLabel(entry.verifiedWatchSeconds)} ({entry.verifiedWatchSeconds ?? 0}s)</p>
                                                 <p>Estimated watch: {formatSecondsLabel(entry.estimatedWatchSeconds)} ({entry.estimatedWatchSeconds ?? 0}s)</p>
                                                 <p>Fallback watch: {formatSecondsLabel(entry.fallbackWatchSeconds)} ({entry.fallbackWatchSeconds ?? 0}s)</p>
@@ -441,9 +445,9 @@ export function DebugAdvancedBehavior({ data }: DebugAdvancedBehaviorProps) {
                                                 <p>Admin user: {entry.adminUserHref || "none"}</p>
                                                 <p>Full UID: {entry.userId || "missing"}</p>
                                             </div>
-                                        </details>
+                                        </Disclosure>
                                     </div>
-                                )) : <div className="px-4 py-4 text-sm text-amber-100">No per-user analytics truth rows are available yet.</div>}
+                                )) : <div className="px-4 py-4 text-sm text-warning">No per-user analytics truth rows are available yet.</div>}
                             </div>
                         </ScrollWrap>
                     </div>

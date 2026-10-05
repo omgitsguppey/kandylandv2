@@ -1,5 +1,10 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+import { Button } from "@/components/ui/Button";
+
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -111,10 +116,10 @@ function getAdminAiCoverSafeErrorMessage(error: unknown, fallback: string) {
 
 function StatusPill({ status }: { status: AdminAiDropCoverJobRecord["status"] }) {
     const toneClassName = status === "succeeded"
-        ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
+        ? "border-success/20 bg-success/10 text-success"
         : status === "failed"
-            ? "border-red-400/20 bg-red-500/10 text-red-100"
-            : "border-cyan-400/20 bg-cyan-500/10 text-cyan-100";
+            ? "border-destructive/20 bg-destructive/10 text-destructive"
+            : "border-info/20 bg-info/10 text-info";
 
     const label = status === "succeeded" ? "Ready" : status === "failed" ? "Failed" : "Generating";
 
@@ -396,11 +401,11 @@ export function AiDropCoverGeneratorPanel({
     const runtimeTone = useMemo(() => {
         switch (dashboard?.runtime.status) {
             case "ready":
-                return "border-emerald-400/20 bg-emerald-500/10 text-emerald-100";
+                return "border-success/20 bg-success/10 text-success";
             case "disabled":
-                return "border-white/10 bg-white/5 text-gray-200";
+                return "border-border bg-secondary text-foreground";
             default:
-                return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+                return "border-warning/20 bg-warning/10 text-warning";
         }
     }, [dashboard?.runtime.status]);
 
@@ -413,13 +418,13 @@ export function AiDropCoverGeneratorPanel({
             title="Cover"
             defaultOpen
             statusChip={<CompactAiStatusChip label={dashboard?.runtime.status === "ready" ? "Ready" : "Needs review"} tone={dashboard?.runtime.status === "ready" ? "good" : "warn"} />}
-            className="border-brand-purple/15 bg-brand-purple/[0.04]"
+            className="border-primary/15 bg-primary/[0.04]"
         >
         <div data-cover-prompt-source="deterministic-compiler" data-cover-title-source="title-prefix">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                    <div className="flex items-center gap-2 text-sm font-bold text-white">
-                        <Sparkles className="h-4 w-4 text-brand-purple" />
+                    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <Sparkles className="h-4 w-4 text-primary" />
                         AI Cover Generation
                     </div>
                 </div>
@@ -431,7 +436,7 @@ export function AiDropCoverGeneratorPanel({
                         </span>
                     ) : null}
                     {dashboard?.settings ? (
-                        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-3 py-1 text-xs text-gray-300">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/25 px-3 py-1 text-xs text-muted-foreground">
                             {formatAdminAiUsd(selectedModelOption.pricePerGenerationUsd)} / gen
                         </span>
                     ) : null}
@@ -444,16 +449,16 @@ export function AiDropCoverGeneratorPanel({
                         type="button"
                         onClick={() => void handleGenerate(null)}
                         disabled={!titleReady || generating}
-                        className="h-9 border-brand-purple/25 bg-brand-purple/15 px-3 text-xs"
+                        className="h-9 border-primary/25 bg-primary/15 px-3 text-xs"
                     >
                         {generating ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Sparkles className="h-4 w-4" />}
                         Generate cover
                     </CompactAiActionButton>
-                    <div className="inline-flex min-h-11 items-center gap-1 rounded-full border border-white/10 bg-black/35 p-1">
+                    <div className="inline-flex min-h-11 items-center gap-1 rounded-full border border-border bg-background/35 p-1">
                         {modelOptions.map((option) => {
                             const isActive = option.id === selectedModel;
                             return (
-                                <button
+                                <Button variant="ghost"
                                     key={option.id}
                                     type="button"
                                     onClick={() => setSelectedModel(option.id)}
@@ -462,38 +467,38 @@ export function AiDropCoverGeneratorPanel({
                                     title={`${option.label} | ${formatAdminAiUsd(option.pricePerGenerationUsd)} per image`}
                                     className={cn(
                                         "inline-flex min-h-9 items-center gap-1 rounded-full px-3 text-xs font-semibold transition disabled:opacity-50",
-                                        isActive ? "bg-brand-purple text-white" : "text-gray-300 hover:bg-white/5",
+                                        isActive ? "bg-primary text-foreground" : "text-muted-foreground hover:bg-secondary",
                                     )}
                                 >
                                     {option.shortLabel}
                                     {option.launchStage === "preview" ? (
-                                        <span className="rounded-full border border-white/15 bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-white/80">
+                                        <span className="rounded-full border border-border bg-secondary px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-foreground/80">
                                             Preview
                                         </span>
                                     ) : null}
-                                </button>
+                                </Button>
                             );
                         })}
                     </div>
                     {visibleJobs.length > 0 ? (
                         <>
-                            <button
+                            <Button variant="ghost"
                                 type="button"
                                 onClick={() => void handleGenerate(visibleJobs[0]?.id || null)}
                                 disabled={!titleReady || generating}
-                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white disabled:opacity-50"
+                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-background/35 px-4 text-sm font-semibold text-foreground disabled:opacity-50"
                             >
                                 <RefreshCw className="h-4 w-4" />
                                 Regenerate
-                            </button>
-                            <button
+                            </Button>
+                            <Button variant="ghost"
                                 type="button"
                                 onClick={clearHistory}
-                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white"
+                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-background/35 px-4 text-sm font-semibold text-foreground"
                             >
                                 <Trash2 className="h-4 w-4" />
                                 Clear history
-                            </button>
+                            </Button>
                         </>
                     ) : null}
                 </div>
@@ -501,7 +506,7 @@ export function AiDropCoverGeneratorPanel({
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                     <Link
                         href="/admin/ai"
-                        className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/10 bg-black/35 px-4 text-sm font-semibold text-white"
+                        className="inline-flex min-h-11 items-center justify-center rounded-full border border-border bg-background/35 px-4 text-sm font-semibold text-foreground"
                     >
                         Open Admin AI
                     </Link>
@@ -509,11 +514,11 @@ export function AiDropCoverGeneratorPanel({
             )}
 
             {!titleReady ? (
-                <p className="mt-2 text-[11px] text-amber-200/80">Enter at least 3 title characters before generating a cover.</p>
+                <p className="mt-2 text-[11px] text-warning/80">Enter at least 3 title characters before generating a cover.</p>
             ) : null}
 
             {dashboard && !loadingDashboard ? (
-                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-500">
+                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                     <span>{selectedModelOption.label}</span>
                     <span>|</span>
                     <span>{formatAdminAiUsd(selectedModelOption.pricePerGenerationUsd)} / image</span>
@@ -521,18 +526,18 @@ export function AiDropCoverGeneratorPanel({
             ) : null}
 
             {featureEnabled && runtimeReady && referenceGuided ? (
-                <details className="mt-2 overflow-hidden rounded-[0.9rem] border border-white/10 bg-black/20">
-                    <summary className="cursor-pointer list-none px-3 py-2 text-[11px] font-semibold text-gray-300 hover:bg-white/[0.02]">
+                <Disclosure className="mt-2 overflow-hidden rounded-[0.9rem] border border-border bg-background/20">
+                    <DisclosureSummary className="cursor-pointer list-none px-3 py-2 text-[11px] font-semibold text-muted-foreground hover:bg-secondary">
                         Debug notes
-                    </summary>
-                    <div className="border-t border-white/10 px-3 py-2 text-[11px] text-gray-400">
+                    </DisclosureSummary>
+                    <div className="border-t border-border px-3 py-2 text-[11px] text-muted-foreground">
                         Reference pool trimmed to model limit.
                     </div>
-                </details>
+                </Disclosure>
             ) : null}
 
             {loadingDashboard && !dashboard ? (
-                <div className="mt-3 rounded-[1rem] border border-white/10 bg-black/30 p-3 text-xs text-gray-300">
+                <div className="mt-3 rounded-[1rem] border border-border bg-background/30 p-3 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-2">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
                         Loading AI status...
@@ -541,7 +546,7 @@ export function AiDropCoverGeneratorPanel({
             ) : null}
 
             {activeProgress ? (
-                <div className="mt-3 rounded-[1rem] border border-cyan-400/20 bg-cyan-500/10 p-3 text-sm text-cyan-100">
+                <div className="mt-3 rounded-[1rem] border border-info/20 bg-info/10 p-3 text-sm text-info">
                     <div className="flex flex-wrap items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                         <span>
@@ -551,16 +556,16 @@ export function AiDropCoverGeneratorPanel({
                                     ? "Saving"
                                     : "Request sent"}
                         </span>
-                        <span className="text-cyan-100/70">Elapsed {formatElapsed(elapsedNowMs - activeProgress.startedAtMs)}</span>
+                        <span className="text-info/70">Elapsed {formatElapsed(elapsedNowMs - activeProgress.startedAtMs)}</span>
                     </div>
-                    <p className="mt-1 text-xs text-cyan-100/70">
+                    <p className="mt-1 text-xs text-info/70">
                         {activeRunningJob ? `Job ${activeRunningJob.id}` : "Waiting for the job record to appear."}
                     </p>
                 </div>
             ) : null}
 
             {generationError ? (
-                <div className="mt-3 rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">
+                <div className="mt-3 rounded-[1rem] border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
                     {generationError}
                 </div>
             ) : null}
@@ -576,15 +581,15 @@ export function AiDropCoverGeneratorPanel({
                             <article
                                 key={job.id}
                                 className={cn(
-                                    "overflow-hidden rounded-[1.2rem] border bg-black/35",
-                                    isSelected ? "border-brand-purple/35" : "border-white/10",
+                                    "overflow-hidden rounded-[1.2rem] border bg-background/35",
+                                    isSelected ? "border-primary/35" : "border-border",
                                 )}
                             >
-                                <div className="relative aspect-square overflow-hidden bg-black">
+                                <div className="relative aspect-square overflow-hidden bg-background">
                                     {job.imageUrl ? (
                                         <Image src={job.imageUrl} alt={job.title} fill sizes="(max-width: 840px) 50vw, 240px" className="object-cover" />
                                     ) : (
-                                        <div className="flex h-full items-center justify-center text-xs text-gray-500">
+                                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
                                             {job.status === "failed" ? "Generation failed" : "Rendering..."}
                                         </div>
                                     )}
@@ -592,15 +597,15 @@ export function AiDropCoverGeneratorPanel({
                                 <div className="space-y-3 p-3">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                            <p className="truncate text-sm font-semibold text-white">{job.title}</p>
-                                            <p className="mt-1 text-[11px] text-gray-500">
+                                            <p className="truncate text-sm font-semibold text-foreground">{job.title}</p>
+                                            <p className="mt-1 text-[11px] text-muted-foreground">
                                                 {getAdminAiDropCoverModelOption(job.model)?.label || job.model}
                                             </p>
                                         </div>
                                         <StatusPill status={job.status} />
                                     </div>
 
-                                    {job.errorMessage ? <p className="text-[11px] text-red-200">{job.errorMessage}</p> : null}
+                                    {job.errorMessage ? <p className="text-[11px] text-destructive">{job.errorMessage}</p> : null}
 
                                     <div className="flex flex-wrap gap-2">
                                         <CompactAiActionButton
@@ -609,7 +614,7 @@ export function AiDropCoverGeneratorPanel({
                                             disabled={!canUse || feedbackPending}
                                             className={cn(
                                                 "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
-                                                job.feedback === "liked" ? "border-emerald-400/20 bg-emerald-500/10" : "border-white/10 bg-black/35",
+                                                job.feedback === "liked" ? "border-success/20 bg-success/10" : "border-border bg-background/35",
                                             )}
                                         >
                                             <ThumbsUp className="h-3.5 w-3.5" />
@@ -621,7 +626,7 @@ export function AiDropCoverGeneratorPanel({
                                             disabled={!canUse || feedbackPending}
                                             className={cn(
                                                 "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
-                                                job.feedback === "disliked" ? "border-red-400/20 bg-red-500/10" : "border-white/10 bg-black/35",
+                                                job.feedback === "disliked" ? "border-destructive/20 bg-destructive/10" : "border-border bg-background/35",
                                             )}
                                         >
                                             <ThumbsDown className="h-3.5 w-3.5" />
@@ -633,7 +638,7 @@ export function AiDropCoverGeneratorPanel({
                                             disabled={!canUse || feedbackPending}
                                             className={cn(
                                                 "h-9 gap-1 px-3 text-[11px] disabled:opacity-45",
-                                                isSelected ? "border-brand-purple/30 bg-brand-purple/20" : "border-white/10 bg-black/35",
+                                                isSelected ? "border-primary/30 bg-primary/20" : "border-border bg-background/35",
                                             )}
                                         >
                                             {feedbackPending && selectedJobId !== job.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> : <Check className="h-3.5 w-3.5" />}

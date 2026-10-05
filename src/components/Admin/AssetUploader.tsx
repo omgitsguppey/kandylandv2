@@ -1,5 +1,9 @@
 "use client";
 
+import { Surface } from "@/components/ui/content-layout";
+import { Button } from "@/components/ui/Button";
+
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NextImage from "next/image";
 import {
@@ -245,13 +249,13 @@ function getStatusLabel(asset: AssetDraft) {
 }
 
 function getStatusTone(asset: AssetDraft) {
-  if (asset.uploadStatus === "success") return "text-emerald-200 bg-emerald-500/70";
-  if (asset.uploadStatus === "failed" || asset.uploadStatus === "blocked") return "text-red-100 bg-red-500/75";
-  if (asset.uploadStatus === "canceled") return "text-amber-100 bg-amber-500/75";
-  if (asset.uploadStatus === "processing") return "text-sky-100 bg-sky-500/75";
-  if (asset.uploadStatus === "uploading") return "text-white bg-brand-purple/80";
-  if (asset.uploadStatus === "queued") return "text-white bg-black/70";
-  return "text-gray-100 bg-black/65";
+  if (asset.uploadStatus === "success") return "text-success bg-success/70";
+  if (asset.uploadStatus === "failed" || asset.uploadStatus === "blocked") return "text-destructive bg-destructive/75";
+  if (asset.uploadStatus === "canceled") return "text-warning bg-warning/75";
+  if (asset.uploadStatus === "processing") return "text-info bg-info/75";
+  if (asset.uploadStatus === "uploading") return "text-foreground bg-primary/80";
+  if (asset.uploadStatus === "queued") return "text-foreground bg-background/70";
+  return "text-foreground bg-background/65";
 }
 
 function revokePreviewUrl(previewUrl?: string) {
@@ -982,7 +986,7 @@ export function AssetUploader({
       return <video src={asset.previewUrl} className="h-full w-full object-cover" muted playsInline />;
     }
     return (
-      <div className="flex h-full w-full items-center justify-center bg-white/5 text-gray-300">
+      <div className="flex h-full w-full items-center justify-center bg-secondary text-muted-foreground">
         <FileArchive className="h-5 w-5" />
       </div>
     );
@@ -1015,28 +1019,28 @@ export function AssetUploader({
       data-upload-queue-state={queueSummary.allComplete ? "idle" : "active"}
     >
       <div className="flex items-center justify-between gap-2">
-        <label className="text-sm font-semibold text-gray-200">{label}</label>
+        <label className="text-sm font-semibold text-foreground">{label}</label>
         {assets.length > 0 ? (
-          <span className="rounded-full border border-white/10 bg-black/40 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-gray-400">
+          <span className="rounded-full border border-border bg-background/40 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
             {assets.length > 1 && batchSummaryLabel ? batchSummaryLabel : `${assets.length} ${assets.length === 1 ? "file" : "files"}`}
           </span>
         ) : null}
       </div>
 
-      <div className="space-y-2 rounded-2xl border border-white/10 bg-black/30 p-2.5 sm:p-3">
-        <button
+      <div className="space-y-2 rounded-2xl border border-border bg-background/30 p-2.5 sm:p-3">
+        <Button variant="ghost"
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="w-full rounded-xl border border-dashed border-white/15 px-3 py-2.5 text-left text-sm text-gray-300 transition-colors hover:bg-white/5 active:bg-white/10"
+          className="w-full rounded-xl border border-dashed border-border px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
         >
           <span className="inline-flex items-center gap-2">
             <Upload className="h-4 w-4" />
             Select {multiple ? "up to 50 assets" : "an asset"}
           </span>
           {helperText ? (
-            <p className="mt-1 line-clamp-1 text-[11px] text-gray-500 sm:line-clamp-none">{helperText}</p>
+            <p className="mt-1 line-clamp-1 text-[11px] text-muted-foreground sm:line-clamp-none">{helperText}</p>
           ) : null}
-        </button>
+        </Button>
 
         <input
           ref={inputRef}
@@ -1051,53 +1055,53 @@ export function AssetUploader({
         />
 
         {assets.length > 1 ? (
-          <div className="rounded-xl border border-white/8 bg-black/25 px-3 py-2">
+          <div className="rounded-xl border border-border bg-background/25 px-3 py-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-[11px] font-semibold text-gray-200">
+              <p className="text-[11px] font-semibold text-foreground">
                 {batchSummaryLabel || "Batch active"}
               </p>
               <div className="flex flex-wrap items-center gap-2">
-                <button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => {
                     clearFailedAssets();
                   }}
-                  className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-white/8"
+                  className="rounded-full border border-border bg-background/35 px-2.5 py-1 text-[10px] font-semibold text-foreground transition-colors hover:bg-secondary"
                   disabled={!hasFailedAssets}
                 >
                   Clear failed
-                </button>
-                <button
+                </Button>
+                <Button variant="ghost"
                   type="button"
                   onClick={() => {
                     const retryable = assetsRef.current.filter((asset) => asset.uploadStatus === "failed" || asset.uploadStatus === "canceled" || asset.uploadStatus === "blocked");
                     retryable.forEach((asset) => retryAsset(asset.id));
                   }}
-                  className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-brand-purple/25"
+                  className="rounded-full border border-primary/30 bg-primary/15 px-2.5 py-1 text-[10px] font-semibold text-foreground transition-colors hover:bg-primary/25"
                   disabled={!hasRetryableFailedAssets}
                 >
                   Retry failed
-                </button>
-                <button
+                </Button>
+                <Button variant="ghost"
                   type="button"
                   onClick={cancelQueuedAndUploadingAssets}
-                  className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-[10px] font-semibold text-gray-200 transition-colors hover:bg-white/8"
+                  className="rounded-full border border-border bg-background/35 px-2.5 py-1 text-[10px] font-semibold text-foreground transition-colors hover:bg-secondary"
                   disabled={!hasCancelableAssets}
                 >
                   Cancel all
-                </button>
+                </Button>
               </div>
             </div>
-            <p className="mt-1 text-[10px] text-gray-500">
+            <p className="mt-1 text-[10px] text-muted-foreground">
               Queued files stay visible until they upload, fail, or are removed.
             </p>
           </div>
         ) : null}
 
         {showCropper && primaryAsset?.previewUrl ? (
-          <div className="space-y-2 rounded-[1.2rem] border border-white/10 bg-white/[0.02] p-2.5">
-            <div
-              className="relative mx-auto w-full max-w-sm overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#11131a]"
+          <div className="space-y-2 rounded-[1.2rem] border border-border bg-secondary p-2.5">
+            <Surface
+              className="relative mx-auto w-full max-w-sm overflow-hidden rounded-[1.2rem] border border-border bg-card"
               style={{ aspectRatio: String(ratioToNumber(aspectRatio)) }}
             >
               <Cropper
@@ -1115,34 +1119,34 @@ export function AssetUploader({
                 restrictPosition={true}
               />
               <div className="pointer-events-none absolute inset-0">
-                <div className="absolute left-2 top-2 rounded-full border border-white/10 bg-black/70 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/85">
+                <div className="absolute left-2 top-2 rounded-full border border-border bg-background/70 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-foreground/85">
                   Safe Zone
                 </div>
-                <div className="absolute inset-[10%] rounded-[1rem] border border-dashed border-white/25 shadow-[0_0_0_999px_rgba(0,0,0,0.14)]" />
+                <div className="absolute inset-[10%] rounded-[1rem] border border-dashed border-border shadow-none" />
               </div>
-            </div>
+            </Surface>
 
-            <div className="space-y-2 rounded-[1rem] border border-white/8 bg-black/25 p-2.5">
+            <div className="space-y-2 rounded-[1rem] border border-border bg-background/25 p-2.5">
               <div className="flex flex-wrap items-center gap-1">
                 {RATIO_OPTIONS.map((ratio) => (
-                  <button
+                  <Button variant="ghost"
                     key={ratio}
                     type="button"
                     onClick={() => onAspectRatioChange(ratio)}
                     className={cn(
-                      "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors",
+                      "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition-colors",
                       aspectRatio === ratio
-                        ? "border-brand-purple bg-brand-purple text-white"
-                        : "border-white/10 bg-black/35 text-gray-400 hover:bg-white/8 hover:text-white",
+                        ? "border-primary bg-primary text-foreground"
+                        : "border-border bg-background/35 text-muted-foreground hover:bg-secondary hover:text-foreground",
                     )}
                   >
                     {ratio}
-                  </button>
+                  </Button>
                 ))}
               </div>
 
               <div className="space-y-1">
-                <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400">
+                <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                   <span>Zoom</span>
                   <span>{zoom.toFixed(2)}x</span>
                 </div>
@@ -1159,32 +1163,32 @@ export function AssetUploader({
               </div>
 
               <div className="flex flex-wrap items-center gap-1.5">
-                <button
+                <Button variant="ghost"
                   type="button"
                   onClick={resetCropState}
-                  className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/8"
+                  className="rounded-full border border-border bg-background/35 px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors hover:bg-secondary"
                 >
                   Reset
-                </button>
+                </Button>
                 {hasOriginalSelection ? (
-                  <button
+                  <Button variant="ghost"
                     type="button"
                     onClick={restoreOriginalSelection}
-                    className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/8"
+                    className="rounded-full border border-border bg-background/35 px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors hover:bg-secondary"
                   >
                     Restore
-                  </button>
+                  </Button>
                 ) : null}
-                <button
+                <Button variant="ghost"
                   type="button"
                   onClick={confirmCrop}
-                  className="ml-auto rounded-full border border-brand-purple bg-brand-purple/20 px-3 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-brand-purple/30"
+                  className="ml-auto rounded-full border border-primary bg-primary/20 px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors hover:bg-primary/30"
                 >
                   Use Cover
-                </button>
+                </Button>
               </div>
 
-              <p className="text-[10px] text-gray-500">
+              <p className="text-[10px] text-muted-foreground">
                 Crop the primary cover, then queue it. Upload progress appears in the thumbnail immediately.
               </p>
             </div>
@@ -1206,39 +1210,39 @@ export function AssetUploader({
                 data-upload-error-code={asset.uploadErrorCode || ""}
                 data-upload-progress-mode={asset.uploadProgressMode}
               >
-                <div className="group relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-md">
+                <div className="group relative aspect-square overflow-hidden rounded-xl border border-border bg-background/40 shadow-md">
                   {renderThumbnail(asset)}
 
                   <div className="absolute left-1.5 top-1.5 flex items-center gap-1">
-                    <span className={cn("rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em]", getStatusTone(asset))}>
+                    <span className={cn("rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide", getStatusTone(asset))}>
                       {asset.uploadStatus === "queued" && queuedPosition ? `Queued #${queuedPosition}` : asset.uploadStatus === "uploading" && asset.uploadProgressMode === "measured" ? `${asset.uploadProgress}%` : getStatusLabel(asset)}
                     </span>
                   </div>
 
                   <div className="absolute right-1.5 top-1.5 flex items-center gap-1">
                     {asset.uploadStatus === "uploading" || asset.uploadStatus === "processing" ? (
-                      <button
+                      <Button variant="ghost"
                         type="button"
                         onClick={() => cancelAsset(asset.id)}
-                        className="rounded-full bg-black/70 p-1 text-white"
+                        className="rounded-full bg-background/70 p-1 text-foreground"
                         aria-label="Cancel upload"
                         title="Cancel upload"
                       >
                         <Square className="h-3 w-3 fill-current" />
-                      </button>
+                      </Button>
                     ) : null}
-                    <button
+                    <Button variant="ghost"
                       type="button"
-                      className="rounded-full bg-black/70 p-1 text-white opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+                      className="rounded-full bg-background/70 p-1 text-foreground opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                       onClick={() => removeAsset(asset.id)}
                       aria-label="Remove asset"
                       title="Remove asset"
                     >
                       <X className="h-3.5 w-3.5" />
-                    </button>
+                    </Button>
                   </div>
 
-                  <div className="absolute bottom-1 right-1 rounded bg-black/70 px-1.5 py-0.5 text-[9px] text-gray-200 shadow-sm">
+                  <div className="absolute bottom-1 right-1 rounded bg-background/70 px-1.5 py-0.5 text-[9px] text-foreground shadow-sm">
                     <span className="inline-flex items-center">
                       {asset.kind === "image" ? <ImageIcon className="h-3 w-3" /> : asset.kind === "video" ? <Video className="h-3 w-3" /> : <FileArchive className="h-3 w-3" />}
                     </span>
@@ -1246,17 +1250,17 @@ export function AssetUploader({
 
                   {asset.uploadStatus === "uploading" || asset.uploadStatus === "processing" ? (
                     <div className="absolute inset-x-0 bottom-0">
-                      <div className="h-1.5 bg-black/50">
+                      <div className="h-1.5 bg-background/50">
                         {asset.uploadProgressMode === "measured" ? (
                           <div
-                            className="h-full bg-brand-purple transition-[width] duration-200"
+                            className="h-full bg-primary transition-[width] duration-200"
                             style={{ width: `${Math.max(4, asset.uploadProgress)}%` }}
                           />
                         ) : (
-                          <div className="h-full w-1/2 animate-pulse bg-brand-purple" />
+                          <div className="h-full w-1/2 animate-pulse bg-primary" />
                         )}
                       </div>
-                      <div className="flex items-center justify-between bg-black/70 px-1.5 py-1 text-[9px] text-white">
+                      <div className="flex items-center justify-between bg-background/70 px-1.5 py-1 text-[9px] text-foreground">
                         <span className="inline-flex items-center gap-1">
                           {asset.uploadStatus === "processing" || asset.uploadStatus === "uploading" ? <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> : null}
                           {asset.uploadStatus === "processing"
@@ -1271,32 +1275,32 @@ export function AssetUploader({
                 </div>
 
                 {asset.fileName ? (
-                  <p className="hidden truncate text-[10px] text-gray-500 sm:block" title={asset.fileName}>
+                  <p className="hidden truncate text-[10px] text-muted-foreground sm:block" title={asset.fileName}>
                     {asset.fileName}
                   </p>
                 ) : null}
 
                 {asset.uploadStatus === "failed" || asset.uploadStatus === "blocked" || asset.uploadStatus === "canceled" ? (
                   <div className="space-y-1">
-                    <p className="line-clamp-2 text-[10px] text-red-300">
+                    <p className="line-clamp-2 text-[10px] text-destructive">
                       {asset.uploadError || "Upload failed. Retry or report this."}
                     </p>
                     <div className="flex items-center gap-1">
-                      <button
+                      <Button variant="ghost"
                         type="button"
                         onClick={() => retryAsset(asset.id)}
-                        className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/35 px-2 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-white/8"
+                        className="inline-flex items-center gap-1 rounded-full border border-border bg-background/35 px-2 py-1 text-[10px] font-semibold text-foreground transition-colors hover:bg-secondary"
                       >
                         <RotateCcw className="h-3 w-3" />
                         Retry
-                      </button>
-                      <button
+                      </Button>
+                      <Button variant="ghost"
                         type="button"
                         onClick={() => removeAsset(asset.id)}
-                        className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/35 px-2 py-1 text-[10px] font-semibold text-gray-300 transition-colors hover:bg-white/8"
+                        className="inline-flex items-center gap-1 rounded-full border border-border bg-background/35 px-2 py-1 text-[10px] font-semibold text-muted-foreground transition-colors hover:bg-secondary"
                       >
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : null}
@@ -1305,7 +1309,7 @@ export function AssetUploader({
             })}
 
             {hiddenAssetCount > 0 ? (
-              <div className="flex aspect-square items-center justify-center rounded-xl border border-dashed border-white/10 bg-black/20 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400">
+              <div className="flex aspect-square items-center justify-center rounded-xl border border-dashed border-border bg-background/20 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                 +{hiddenAssetCount} more
               </div>
             ) : null}
@@ -1313,7 +1317,7 @@ export function AssetUploader({
         ) : null}
 
         {assets.some((asset) => asset.uploadStatus === "blocked") ? (
-          <div className="flex items-start gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-[11px] text-red-100">
+          <div className="flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/10 px-3 py-2 text-[11px] text-destructive">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
               Direct upload is blocked for this folder. Use the guarded admin or creator upload route instead of Firebase client writes.

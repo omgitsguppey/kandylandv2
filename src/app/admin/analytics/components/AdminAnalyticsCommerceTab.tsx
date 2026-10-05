@@ -1,3 +1,8 @@
+import { Surface } from "@/components/ui/content-layout";
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
 import React from "react";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
@@ -330,26 +335,26 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
 
               <div className="border-b border-border mb-2 grid gap-2 px-3 py-2 text-xs text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Range</div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Range</div>
                   <div className="font-semibold text-foreground">{commerceSnapshotModel.selectedRangeLabel}</div>
                 </div>
                 <div>
-                  <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Cache freshness</div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Cache freshness</div>
                   <div className="font-semibold text-foreground">{commerceBadgeLabel}</div>
                 </div>
                 <div>
-                  <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Last verified</div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Last verified</div>
                   <div className="font-semibold text-foreground">{commerceGeneratedAtLabel}</div>
                 </div>
                 <div>
-                  <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Treasury</div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Treasury</div>
                   <div className="font-semibold text-foreground">Platform Economy</div>
                   <div className="text-muted-foreground">Server ledger remains the treasury source.</div>
                 </div>
               </div>
 
               {commerceSnapshotModel.commerceSnapshotState.rangeConsistency.warning ? (
-                <div className="mb-2 rounded-[1rem] border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100">
+                <div className="mb-2 rounded-[1rem] border border-warning/20 bg-warning/10 px-3 py-2 text-xs leading-5 text-warning">
                   {commerceSnapshotModel.commerceSnapshotState.rangeConsistency.warning}
                 </div>
               ) : null}
@@ -458,7 +463,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                 <div className="font-semibold text-foreground">
                   {commerceConversionFooter}
                 </div>
-                <div className="text-brand-purple">
+                <div className="text-primary">
                   {commerceSnapshotModel.needsAttention.length > 0
                     ? commerceSnapshotModel.needsAttention.slice(0, 2).join(" | ")
                     : "No commerce action required."}
@@ -494,19 +499,19 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                 >
                 <div className="border-b border-border grid gap-2 px-3 py-2 text-xs text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                   <div>
-                    <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Range</div>
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Range</div>
                     <div className="font-semibold text-foreground">{packagePerformancePanelState?.range ?? packagePerformanceRange}</div>
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Source state</div>
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Source state</div>
                     <div className="font-semibold text-foreground">{packagePerformancePanelState?.sourceState ?? "unknown"}</div>
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Packages</div>
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Packages</div>
                     <div className="font-semibold text-foreground">{packagePerformancePanelState?.packageCount ?? packagePerformanceItems.length}</div>
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Totals</div>
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Totals</div>
                     <div className="font-semibold text-foreground">
                       {packagePerformancePanelState
                         ? `${packagePerformancePanelState.totals.completedPurchases} purchases | ${formatMoney(packagePerformancePanelState.totals.revenueUsd)}`
@@ -516,7 +521,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                 </div>
 
                 {packagePerformancePanelState?.warnings?.length ? (
-                  <div className="rounded-[1rem] border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100">
+                  <div className="rounded-[1rem] border border-warning/20 bg-warning/10 px-3 py-2 text-xs leading-5 text-warning">
                     {packagePerformancePanelState.warnings.join(" ")}
                   </div>
                 ) : null}
@@ -527,24 +532,24 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                       <div className="border-b border-border h-72 w-full p-3">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={packagePerformanceChartRows} margin={{ top: 8, right: 8, left: -18, bottom: 36 }}>
-                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                            <XAxis dataKey="chartLabel" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={58} />
-                            <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                            <CartesianGrid stroke="var(--border)" vertical={false} />
+                            <XAxis dataKey="chartLabel" stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={58} />
+                            <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                             <Tooltip content={<AnalyticsTooltip />} />
-                            <Bar dataKey="checkoutStarts" name="Starts" fill="#22d3ee" radius={[10, 10, 0, 0]} />
-                            <Bar dataKey="completedPurchases" name="Purchases" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                            <Bar dataKey="checkoutStarts" name="Starts" fill="var(--info)" radius={[10, 10, 0, 0]} />
+                            <Bar dataKey="completedPurchases" name="Purchases" fill="var(--primary)" radius={[10, 10, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
                     ) : null}
 
                     {packagePerformanceViewMode === "table" ? (
-                      <div
+                      <TableScrollArea
                         className="rounded-2xl bg-card overflow-x-auto"
                         data-package-performance-table="compact"
                       >
-                        <table className="min-w-full text-left text-xs">
-                          <thead className="border-b border-white/10 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                        <DataTable className="min-w-full text-left text-xs">
+                          <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                             <tr>
                               <th className="px-3 py-2 font-semibold">Package</th>
                               <th className="px-3 py-2 font-semibold">Price</th>
@@ -556,7 +561,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                               <th className="px-3 py-2 font-semibold">State</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-white/10 text-muted-foreground">
+                          <tbody className="divide-y divide-border text-muted-foreground">
                             {packagePerformanceRows.map((row: any) => (
                               <tr
                                 key={`package-performance-table-${row.packageId}`}
@@ -577,8 +582,8 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                               </tr>
                             ))}
                           </tbody>
-                        </table>
-                      </div>
+                        </DataTable>
+                      </TableScrollArea>
                     ) : null}
 
                     {packagePerformanceViewMode === "cards" ? (
@@ -597,7 +602,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                 <p className="text-xs text-muted-foreground">{row.packageId}</p>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm font-semibold text-brand-purple">
+                                <p className="text-sm font-semibold text-primary">
                                   {row.conversionRatePct === null ? "Partial" : `${Math.round(row.conversionRatePct)}%`}
                                 </p>
                                 <p className="text-xs text-muted-foreground">{row.performanceState}</p>
@@ -669,21 +674,21 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                 >
                   <div className="border-b border-border grid gap-2 px-3 py-2 text-xs text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                     <div>
-                      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Range</div>
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">Range</div>
                       <div className="font-semibold text-foreground">{topDropConversionModel.range}</div>
                     </div>
                     <div>
-                      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Decision source</div>
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">Decision source</div>
                       <div className="font-semibold text-foreground" title={topDropConversionModel.sourceTruth}>
                         {topDropConversionReadableSourceLabel}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Denominator</div>
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">Denominator</div>
                       <div className="font-semibold text-foreground">{topDropConversionModel.denominatorLabel}</div>
                     </div>
                     <div>
-                      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Last updated</div>
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">Last updated</div>
                       <div className="font-semibold text-foreground">{formatAbsoluteDateTime(topDropConversionModel.generatedAtUtc)}</div>
                     </div>
                   </div>
@@ -701,9 +706,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                       <div className="h-56 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={topDropConversionModel.chartRows} margin={{ top: 8, right: 0, left: -18, bottom: 0 }}>
-                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                            <XAxis dataKey="chartLabel" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
-                            <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                            <CartesianGrid stroke="var(--border)" vertical={false} />
+                            <XAxis dataKey="chartLabel" stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-18} textAnchor="end" height={56} />
+                            <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                             <Tooltip
                               content={
                                 <AnalyticsTooltip
@@ -715,8 +720,8 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                 />
                               }
                             />
-                            <Bar dataKey="views" name="Validated views" fill="#374151" radius={[8, 8, 0, 0]} />
-                            <Bar dataKey="unwraps" name="Unwraps" fill="#b28cff" radius={[8, 8, 0, 0]} />
+                            <Bar dataKey="views" name="Validated views" fill="var(--border)" radius={[8, 8, 0, 0]} />
+                            <Bar dataKey="unwraps" name="Unwraps" fill="var(--primary)" radius={[8, 8, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
@@ -724,7 +729,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                         {topDropConversionModel.visibleRows.slice(0, 6).map((drop) => (
                           <div key={`chart-legend-${drop.dropId}`} className="border-b border-border flex items-center justify-between gap-2 px-3 py-2">
                             <span className="min-w-0 min-w-0 whitespace-normal wrap-anywhere text-foreground">{drop.dropTitle}</span>
-                            <span className="shrink-0 font-semibold text-brand-purple">{drop.unwrapRateDisplay}</span>
+                            <span className="shrink-0 font-semibold text-primary">{drop.unwrapRateDisplay}</span>
                           </div>
                         ))}
                       </div>
@@ -733,7 +738,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
 
                   {topDropConversionViewMode === "table" ? (
                     <div className="border-b border-border overflow-hidden">
-                      <div className="hidden grid-cols-[minmax(0,1.7fr)_0.8fr_0.8fr_0.8fr_0.9fr] gap-2 border-b border-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground @3xl:grid">
+                      <div className="hidden grid-cols-[minmax(0,1.7fr)_0.8fr_0.8fr_0.8fr_0.9fr] gap-2 border-b border-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground @3xl:grid">
                         <div>Drop</div>
                         <div>Views</div>
                         <div>Unwraps</div>
@@ -758,7 +763,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                               </div>
                               <p><span className="text-muted-foreground @3xl:hidden">Views: </span>{drop.views.toLocaleString()}</p>
                               <p><span className="text-muted-foreground @3xl:hidden">Unwraps: </span>{drop.unwraps.toLocaleString()}</p>
-                              <p className="font-semibold text-brand-purple"><span className="text-muted-foreground @3xl:hidden">Rate: </span>{drop.unwrapRateDisplay}</p>
+                              <p className="font-semibold text-primary"><span className="text-muted-foreground @3xl:hidden">Rate: </span>{drop.unwrapRateDisplay}</p>
                               <div>
                                 <AdminStatusBadge state={resolveAdminAnalyticsTopDropIdentityTruthState(drop.dropIdentityState)} className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs" />
                               </div>
@@ -775,7 +780,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
 
                   {topDropConversionViewMode === "cards" ? (
                   <div className="space-y-2">
-                    <div className="hidden grid-cols-[minmax(0,1.7fr)_0.8fr_0.8fr_0.8fr_0.8fr] gap-2 px-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground @3xl:grid">
+                    <div className="hidden grid-cols-[minmax(0,1.7fr)_0.8fr_0.8fr_0.8fr_0.8fr] gap-2 px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground @3xl:grid">
                       <div>Drop</div>
                       <div>Views</div>
                       <div>Unwraps</div>
@@ -801,7 +806,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                   {drop.creatorName ? `${drop.creatorName} | ` : ""}{drop.shortDropId}
                                 </p>
                               </div>
-                              <span className="shrink-0 text-sm font-bold text-brand-purple">{drop.unwrapRateDisplay}</span>
+                              <span className="shrink-0 text-sm font-semibold text-primary">{drop.unwrapRateDisplay}</span>
                             </div>
                             <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
                               <span>{drop.views.toLocaleString()} {topDropConversionModel.denominatorLabel}</span>
@@ -817,25 +822,25 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                               <p className="mt-1 text-xs text-muted-foreground">
                                 {drop.creatorName ? `${drop.creatorName} | ` : ""}{drop.shortDropId}
                               </p>
-                              <details className="mt-1 text-xs text-muted-foreground">
-                                <summary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start" })}>Identity details</summary>
+                              <Disclosure className="mt-1 text-xs text-muted-foreground">
+                                <DisclosureSummary className={buttonVariants({ variant: "ghost", size: "sm", className: "min-w-11 max-w-full justify-start" })}>Identity details</DisclosureSummary>
                                 <p>Drop ID: {drop.dropId}</p>
                                 <p title={drop.sourceTruth}>
                                   Source: {formatAdminAnalyticsSourceTruthLabel(drop.sourceTruth)}
                                 </p>
                                 <p>Freshness: {formatAdminAnalyticsSourceStateLabel(drop.freshnessState)}</p>
-                              </details>
+                              </Disclosure>
                             </div>
                             <div className="text-sm font-semibold text-foreground">{drop.views.toLocaleString()}</div>
                             <div className="text-sm font-semibold text-foreground">{drop.unwraps.toLocaleString()}</div>
-                            <div className="text-sm font-semibold text-brand-purple">{drop.unwrapRateDisplay}</div>
+                            <div className="text-sm font-semibold text-primary">{drop.unwrapRateDisplay}</div>
                             <div>
                               <AdminStatusBadge state={resolveAdminAnalyticsTopDropIdentityTruthState(drop.dropIdentityState)} className="max-w-full overflow-visible whitespace-normal wrap-anywhere text-xs" />
                             </div>
                           </div>
-                          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
-                            <div
-                              className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+                          <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
+                            <Surface
+                              className="h-full rounded-full bg-card from-brand-purple"
                               style={{ width: `${Math.min(100, Math.max(4, drop.unwrapRatePct ?? 0))}%` }}
                             />
                           </div>
@@ -931,30 +936,30 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                 >
                   <div className="border-b border-border grid min-w-0 max-w-full grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3 px-3 py-2 text-sm text-muted-foreground">
                     <div className="min-w-0">
-                      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Decision source</div>
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">Decision source</div>
                       <div className="min-w-0 wrap-anywhere font-semibold text-foreground" title={recentCommerceFeedModel.sourceTruth}>
                         {recentCommerceFeedReadableSourceLabel}
                       </div>
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Freshness</div>
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">Freshness</div>
                       <div className="min-w-0 wrap-anywhere font-semibold text-foreground">{formatAdminAnalyticsSourceStateLabel(recentCommerceFeedModel.freshnessState)}</div>
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Last transaction</div>
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">Last transaction</div>
                       <div className="min-w-0 wrap-anywhere font-semibold text-foreground">{recentCommerceFeedModel.rows[0]?.ageLabel ?? noSnapshotLabel}</div>
                     </div>
                   </div>
 
                   {recentCommerceFeedModel.rows.length > 0 && recentCommerceFeedViewMode === "table" ? (
-                    <div
+                    <TableScrollArea
                       className="rounded-2xl bg-card overflow-x-auto"
                       data-recent-commerce-feed-table="compact"
                       data-recent-commerce-feed-range={recentCommerceFeedRange}
                       data-recent-commerce-feed-source-state={recentCommerceFeedModel.rows.length > 0 ? "loaded" : "no_sample"}
                     >
-                      <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                      <DataTable className="min-w-full text-left text-xs">
+                        <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Transaction</th>
                             <th className="px-3 py-2 font-semibold">Actor</th>
@@ -963,7 +968,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                             <th className="px-3 py-2 font-semibold">Status</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-muted-foreground">
+                        <tbody className="divide-y divide-border text-muted-foreground">
                           {recentCommerceFeedModel.rows.map((item) => (
                             <tr
                               key={`recent-commerce-feed-table-${item.transactionId}`}
@@ -981,7 +986,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                               <td
                                 className={cn(
                                   "px-3 py-2 font-semibold",
-                                  item.direction === "debit" ? "text-rose-300" : item.direction === "credit" ? "text-emerald-300" : "text-muted-foreground",
+                                  item.direction === "debit" ? "text-destructive" : item.direction === "credit" ? "text-success" : "text-muted-foreground",
                                 )}
                               >
                                 {item.amountDisplay}
@@ -999,8 +1004,8 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </DataTable>
+                    </TableScrollArea>
                   ) : null}
 
                   {recentCommerceFeedModel.rows.length > 0 && recentCommerceFeedViewMode === "timeline" ? (
@@ -1021,9 +1026,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                           data-recent-commerce-feed-source-of-funds={item.sourceOfFunds}
                         >
                           <div className="flex flex-col items-center">
-                            <span className="mt-1 h-2.5 w-2.5 rounded-full bg-brand-purple" />
+                            <span className="mt-1 h-2.5 w-2.5 rounded-full bg-primary" />
                             {index < recentCommerceFeedModel.rows.length - 1 ? (
-                              <span className="mt-1 h-full min-h-8 w-px bg-white/10" />
+                              <span className="mt-1 h-full min-h-8 w-px bg-secondary" />
                             ) : null}
                           </div>
                           <div className="min-w-0 pb-2">
@@ -1038,13 +1043,13 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                           <div className="max-w-[6.75rem] shrink-0 text-right">
                             <p
                               className={cn(
-                                "min-w-0 whitespace-normal wrap-anywhere text-sm font-bold",
-                                item.direction === "debit" ? "text-rose-300" : item.direction === "credit" ? "text-emerald-300" : "text-muted-foreground",
+                                "min-w-0 whitespace-normal wrap-anywhere text-sm font-semibold",
+                                item.direction === "debit" ? "text-destructive" : item.direction === "credit" ? "text-success" : "text-muted-foreground",
                               )}
                             >
                               {item.amountDisplay}
                             </p>
-                            <p className="mt-1 min-w-0 whitespace-normal wrap-anywhere text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                            <p className="mt-1 min-w-0 whitespace-normal wrap-anywhere text-xs uppercase tracking-wide text-muted-foreground">
                               {formatCommerceFundsLabel(item.sourceOfFunds)}
                             </p>
                           </div>
@@ -1075,7 +1080,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                 className="object-cover"
                               />
                             ) : (
-                              <Wallet className="h-4 w-4 text-brand-purple" />
+                              <Wallet className="h-4 w-4 text-primary" />
                             )}
                           </div>
                           <div className="min-w-0 overflow-hidden">
@@ -1085,11 +1090,11 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                             <p className="mt-1 min-w-0 whitespace-normal wrap-anywhere text-xs text-muted-foreground">
                               {item.actorDisplayName} | {item.ageLabel} | {item.status}
                             </p>
-                            <div className="mt-2 flex max-w-full flex-wrap gap-1.5 overflow-hidden text-xs font-semibold uppercase tracking-[0.12em]">
-                              <span className="max-w-full min-w-0 whitespace-normal wrap-anywhere rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-muted-foreground">
+                            <div className="mt-2 flex max-w-full flex-wrap gap-1.5 overflow-hidden text-xs font-semibold uppercase tracking-wide">
+                              <span className="max-w-full min-w-0 whitespace-normal wrap-anywhere rounded-full border border-border bg-secondary px-2 py-0.5 text-muted-foreground">
                                 {item.sourceLabel}
                               </span>
-                              <span className="max-w-full min-w-0 whitespace-normal wrap-anywhere rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-muted-foreground">
+                              <span className="max-w-full min-w-0 whitespace-normal wrap-anywhere rounded-full border border-border bg-secondary px-2 py-0.5 text-muted-foreground">
                                 {formatCommerceReadableSourceLabel(formatAdminAnalyticsSourceTruthLabel(item.sourceTruth))}
                               </span>
                             </div>
@@ -1097,13 +1102,13 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                           <div className="max-w-[6.75rem] shrink-0 text-right">
                             <p
                               className={cn(
-                                "min-w-0 whitespace-normal wrap-anywhere text-sm font-bold",
-                                item.direction === "debit" ? "text-rose-300" : item.direction === "credit" ? "text-emerald-300" : "text-muted-foreground",
+                                "min-w-0 whitespace-normal wrap-anywhere text-sm font-semibold",
+                                item.direction === "debit" ? "text-destructive" : item.direction === "credit" ? "text-success" : "text-muted-foreground",
                               )}
                             >
                               {item.amountDisplay}
                             </p>
-                            <p className="mt-1 min-w-0 whitespace-normal wrap-anywhere text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                            <p className="mt-1 min-w-0 whitespace-normal wrap-anywhere text-xs uppercase tracking-wide text-muted-foreground">
                               {item.status}
                             </p>
                           </div>
@@ -1132,7 +1137,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                   <div className="flex flex-wrap items-center gap-2">
                     {renderSectionRangeControl("viewerDrilldown")}
                     {viewerDrilldownFilter ? (
-                      <span className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple">
+                      <span className="rounded-full border border-primary/25 bg-primary/12 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
                         Filtered
                       </span>
                     ) : null}
@@ -1147,7 +1152,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                       <div className="border-b border-border p-4">
                         <div className="flex min-w-0 flex-wrap items-end gap-3 max-w-full">
                           <label className="min-w-0 max-w-full flex-[1_1_12rem]">
-                            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                               Filter by username or UID
                             </span>
                             <Input
@@ -1218,25 +1223,25 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                         data-library-viewer-last-session-at-utc={viewerDrilldownCaptureHealth.lastSeenAtMs ? new Date(viewerDrilldownCaptureHealth.lastSeenAtMs).toISOString() : ""}
                       >
                         <div>
-                          <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Range</div>
+                          <div className="text-xs uppercase tracking-wide text-muted-foreground">Range</div>
                           <div className="font-semibold text-foreground">{String(viewerDrilldownRange).toUpperCase()}</div>
                         </div>
                         <div>
-                          <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Watch source</div>
+                          <div className="text-xs uppercase tracking-wide text-muted-foreground">Watch source</div>
                           <div className="font-semibold text-foreground">{viewerSourceLabel}</div>
                         </div>
                         <div>
-                          <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Last viewer session</div>
+                          <div className="text-xs uppercase tracking-wide text-muted-foreground">Last viewer session</div>
                           <div className="font-semibold text-foreground">{viewerLastSessionLabel}</div>
                         </div>
                         <div>
-                          <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Generated</div>
+                          <div className="text-xs uppercase tracking-wide text-muted-foreground">Generated</div>
                           <div className="font-semibold text-foreground">{viewerDrilldownGeneratedAtLabel}</div>
                         </div>
                       </div>
 
                       {viewerPanelWarnings.length > 0 ? (
-                        <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100">
+                        <div className="rounded-[1rem] border border-warning/20 bg-warning/10 px-3 py-2 text-xs leading-5 text-warning">
                           {viewerPanelWarnings.join(" ")}
                         </div>
                       ) : null}
@@ -1316,7 +1321,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                         <div className="border-b border-border p-4">
                           <div className="mb-3 flex items-center justify-between gap-3">
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 Watch capture health
                               </p>
                               <p className="mt-1 text-sm text-muted-foreground">
@@ -1330,11 +1335,11 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                 "rounded-full border px-3 py-1 text-xs font-semibold",
                                 viewerDrilldownCaptureHealth.closeMissingCount >
                                   0
-                                  ? "border-red-400/25 bg-red-500/10 text-red-200"
+                                  ? "border-destructive/25 bg-destructive/10 text-destructive"
                                   : viewerDrilldownCaptureHealth
                                         .degradedSessionCount > 0
-                                    ? "border-amber-400/25 bg-amber-500/10 text-amber-100"
-                                    : "border-emerald-400/25 bg-emerald-500/10 text-emerald-100",
+                                    ? "border-warning/25 bg-warning/10 text-warning"
+                                    : "border-success/25 bg-success/10 text-success",
                               )}
                             >
                               {viewerDrilldownCaptureHealth.sessionCount > 0
@@ -1390,7 +1395,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                               (item: any) => (
                                 <span
                                   key={item.transport}
-                                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1"
+                                  className="rounded-full border border-border bg-secondary px-3 py-1"
                                 >
                                   {item.transport.replace(/_/g, " ")} ·{" "}
                                   {item.count.toLocaleString()}
@@ -1399,7 +1404,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                             )}
                             {viewerDrilldownCaptureHealth.averagePlaybackRate >
                             0 ? (
-                              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                              <span className="rounded-full border border-border bg-secondary px-3 py-1">
                                 Avg playback ·{" "}
                                 {viewerDrilldownCaptureHealth.averagePlaybackRate.toFixed(
                                   2,
@@ -1408,7 +1413,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                               </span>
                             ) : null}
                             {viewerDrilldownCaptureHealth.lastSeenAtMs > 0 ? (
-                              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                              <span className="rounded-full border border-border bg-secondary px-3 py-1">
                                 Last session ·{" "}
                                 {formatRelativeTime(
                                   viewerDrilldownCaptureHealth.lastSeenAtMs,
@@ -1428,7 +1433,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                 (warning: any) => (
                                   <div
                                     key={warning}
-                                    className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+                                    className="rounded-2xl border border-warning/20 bg-warning/10 px-3 py-2 text-xs text-warning"
                                   >
                                     {warning}
                                   </div>
@@ -1441,7 +1446,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                         <div className="border-b border-border p-4">
                           <div className="mb-3 flex items-center justify-between gap-3">
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 Live capture pulse
                               </p>
                               <p className="mt-1 text-sm text-muted-foreground">
@@ -1454,16 +1459,16 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                 className={cn(
                                   "rounded-full border px-3 py-1 text-xs font-semibold",
                                   viewerCapturePulseState === "live"
-                                    ? "border-emerald-400/25 bg-emerald-500/10 text-emerald-100"
+                                    ? "border-success/25 bg-success/10 text-success"
                                     : viewerCapturePulseState === "stale"
-                                      ? "border-amber-400/25 bg-amber-500/10 text-amber-100"
-                                      : "border-cyan-400/25 bg-cyan-500/10 text-cyan-100",
+                                      ? "border-warning/25 bg-warning/10 text-warning"
+                                      : "border-info/25 bg-info/10 text-info",
                                 )}
                                 data-library-viewer-live-pulse-state={viewerCapturePulseState}
                               >
                                 {viewerCapturePulseBadgeLabel}
                               </span>
-                              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-muted-foreground">
+                              <span className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-semibold text-muted-foreground">
                                 {liveWatchCaptureHealth.sessionCount <= 0 ? "0" : liveWatchCaptureHealth.sessionCount.toLocaleString()}{" "}
                                 recent
                               </span>
@@ -1501,13 +1506,13 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                   <span className="text-foreground">
                                     {item.label}
                                   </span>
-                                  <span className="font-semibold text-brand-purple">
+                                  <span className="font-semibold text-primary">
                                     {item.value === null ? noSampleLabel : item.value.toLocaleString()}
                                   </span>
                                 </div>
-                                <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                                  <div
-                                    className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+                                <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                                  <Surface
+                                    className="h-full rounded-full bg-card from-brand-purple"
                                     style={{
                                       width: `${Math.max(
                                         6,
@@ -1532,7 +1537,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                         <div className="border-b border-border p-4">
                           <div className="mb-3 flex items-center justify-between gap-3">
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 Top user journeys
                               </p>
                               <p className="mt-1 text-sm text-muted-foreground">
@@ -1541,7 +1546,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                 matter.
                               </p>
                             </div>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-muted-foreground">
+                            <span className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-semibold text-muted-foreground">
                               {viewerUserJourneyRows.length} tracked
                             </span>
                           </div>
@@ -1563,17 +1568,17 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                         /dashboard/viewer; {item.sessionCount.toLocaleString()} sessions
                                       </p>
                                     </div>
-                                    <span className="text-sm font-bold text-brand-purple">
+                                    <span className="text-sm font-semibold text-primary">
                                       {formatDuration(item.totalWatchSeconds)}
                                     </span>
                                   </div>
                                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                    <span className="rounded-full border border-border bg-secondary px-2 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                       Member
                                     </span>
                                     <span
                                       className={cn(
-                                        "rounded-full border px-2 py-1 text-xs font-semibold uppercase tracking-[0.14em]",
+                                        "rounded-full border px-2 py-1 text-xs font-semibold uppercase tracking-wide",
                                         getJourneyStateClasses(
                                           item.totalWatchSeconds >= 10 ? "engaged" : "bounced",
                                         ),
@@ -1604,7 +1609,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                         <div className="border-b border-border p-4">
                           <div className="mb-3 flex items-center justify-between gap-3">
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 Experience context
                               </p>
                               <p className="mt-1 text-sm text-muted-foreground">
@@ -1612,7 +1617,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                 activity, watch depth, and unwrap/asset signals.
                               </p>
                             </div>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-muted-foreground">
+                            <span className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-semibold text-muted-foreground">
                               {topExperienceContexts.length} experiences
                             </span>
                           </div>
@@ -1627,7 +1632,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                     <p className="min-w-0 whitespace-normal wrap-anywhere text-sm font-semibold text-foreground">
                                       {item.label}
                                     </p>
-                                    <span className="text-sm font-bold text-cyan-300">
+                                    <span className="text-sm font-semibold text-info">
                                       {formatDuration(item.watchSeconds)}
                                     </span>
                                   </div>
@@ -1665,7 +1670,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                         <div className="border-b border-border p-4">
                           <div className="mb-4 flex items-center justify-between gap-3 min-w-0 max-w-full flex-wrap">
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 Top viewed drops by watch time
                               </p>
                               <p className="mt-1 text-xs text-muted-foreground">
@@ -1713,12 +1718,12 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                   }}
                                 >
                                   <CartesianGrid
-                                    stroke="rgba(255,255,255,0.06)"
+                                    stroke="var(--border)"
                                     vertical={false}
                                   />
                                   <XAxis
                                     dataKey="shortLabel"
-                                    stroke="#6b7280"
+                                    stroke="var(--muted-foreground)"
                                     fontSize={10}
                                     tickLine={false}
                                     axisLine={false}
@@ -1728,7 +1733,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                     height={56}
                                   />
                                   <YAxis
-                                    stroke="#6b7280"
+                                    stroke="var(--muted-foreground)"
                                     fontSize={11}
                                     tickLine={false}
                                     axisLine={false}
@@ -1750,13 +1755,13 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                   <Bar
                                     dataKey="totalWatchSeconds"
                                     name="Watch"
-                                    fill="#b28cff"
+                                    fill="var(--primary)"
                                     radius={[10, 10, 0, 0]}
                                   />
                                   <Bar
                                     dataKey="sessionCount"
                                     name="Sessions"
-                                    fill="#22d3ee"
+                                    fill="var(--info)"
                                     radius={[10, 10, 0, 0]}
                                   />
                                 </BarChart>
@@ -1772,14 +1777,14 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                         </div>
 
                         {viewerDropViewMode === "table" && viewerDropVisibleRows.length > 0 ? (
-                          <div
+                          <TableScrollArea
                             className="rounded-2xl bg-card overflow-x-auto"
                             data-library-viewer-drop-table="compact"
                             data-library-viewer-drop-source-truth={viewerSourceTruth}
                             data-library-viewer-drop-freshness={viewerFreshnessState}
                           >
-                            <table className="min-w-full text-left text-xs">
-                              <thead className="border-b border-white/10 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                            <DataTable className="min-w-full text-left text-xs">
+                              <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                                 <tr>
                                   <th className="px-3 py-2 font-semibold">Drop</th>
                                   <th className="px-3 py-2 font-semibold">Watch</th>
@@ -1789,7 +1794,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                   <th className="px-3 py-2 font-semibold">State</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-white/10 text-muted-foreground">
+                              <tbody className="divide-y divide-border text-muted-foreground">
                                 {viewerDropVisibleRows.map((item: any) => (
                                   <tr
                                     key={`viewer-drop-table-${item.dropId}`}
@@ -1797,7 +1802,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                     data-library-viewer-drop-freshness={viewerFreshnessState}
                                   >
                                     <td className="max-w-[14rem] min-w-0 whitespace-normal wrap-anywhere px-3 py-2 font-semibold text-foreground">{item.dropTitle}</td>
-                                    <td className="px-3 py-2 text-brand-purple">{formatDuration(item.totalWatchSeconds)}</td>
+                                    <td className="px-3 py-2 text-primary">{formatDuration(item.totalWatchSeconds)}</td>
                                     <td className="px-3 py-2">{item.sessionCount.toLocaleString()}</td>
                                     <td className="px-3 py-2">{item.uniqueViewerCount.toLocaleString()}</td>
                                     <td className="px-3 py-2">{item.meaningfulSessionCount.toLocaleString()}</td>
@@ -1805,8 +1810,8 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                   </tr>
                                 ))}
                               </tbody>
-                            </table>
-                          </div>
+                            </DataTable>
+                          </TableScrollArea>
                         ) : null}
 
                         {viewerDropViewMode === "cards" ? (
@@ -1830,7 +1835,7 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                     viewers
                                   </p>
                                 </div>
-                                <span className="shrink-0 rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-1 text-xs font-semibold text-brand-purple">
+                                <span className="shrink-0 rounded-full border border-primary/25 bg-primary/12 px-3 py-1 text-xs font-semibold text-primary">
                                   {formatDuration(item.totalWatchSeconds)}
                                 </span>
                               </div>
@@ -1853,9 +1858,9 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                                   <br />
                                   {item.returnSessionCount}
                                 </div>
-                                <div className="border-b border-border px-3 py-2 text-brand-purple">
+                                <div className="border-b border-border px-3 py-2 text-primary">
                                   Avg load
-                                  <span className="block text-xs text-brand-purple/70">watch-session load samples</span>
+                                  <span className="block text-xs text-primary/70">watch-session load samples</span>
                                   <br />
                                   {item.avgLoadMs > 0
                                     ? `${item.avgLoadMs}ms`
@@ -1905,13 +1910,13 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                 >
                   {(watchDepthTagBuckets.some((bucket: any) => bucket.count > 0) || watchDepthTagDemand.length > 0) && watchDepthTagsViewMode === "chart" ? (
                     <div className="grid gap-3 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
-                      <div className="rounded-2xl bg-card h-64 p-3">
+                      <Surface className="rounded-2xl bg-card h-64 p-3">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={watchDepthChartRows} margin={{ top: 8, right: 4, left: -18, bottom: 0 }}>
-                            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                            <CartesianGrid stroke="var(--border)" vertical={false} />
                             <XAxis
                               dataKey="shortLabel"
-                              stroke="#6b7280"
+                              stroke="var(--muted-foreground)"
                               fontSize={10}
                               tickLine={false}
                               axisLine={false}
@@ -1920,18 +1925,18 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                               textAnchor="end"
                               height={52}
                             />
-                            <YAxis stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                            <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                             <Tooltip content={<AnalyticsTooltip />} />
-                            <Bar dataKey="count" name="Depth events" fill="#b28cff" radius={[10, 10, 0, 0]} />
+                            <Bar dataKey="count" name="Depth events" fill="var(--primary)" radius={[10, 10, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
-                      </div>
+                      </Surface>
                       <div className="border-b border-border p-3">
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Top tags</p>
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Top tags</p>
                         <div className="flex flex-wrap gap-2">
                           {watchTagVisibleRows.length > 0 ? (
                             watchTagVisibleRows.map((item: any) => (
-                              <span key={`watch-tag-chart-${item.tag}`} className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-foreground">
+                              <span key={`watch-tag-chart-${item.tag}`} className="rounded-full border border-primary/25 bg-primary/12 px-3 py-2 text-xs font-semibold text-foreground">
                                 {item.tag}; {item.count.toLocaleString()}
                               </span>
                             ))
@@ -1944,14 +1949,14 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                   ) : null}
 
                   {(watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0) && watchDepthTagsViewMode === "table" ? (
-                    <div
+                    <TableScrollArea
                       className="rounded-2xl bg-card overflow-x-auto"
                       data-watch-depth-tags-table="compact"
                       data-watch-depth-tags-range={watchDepthTagsRange}
                       data-watch-depth-tags-source-state={watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0 ? "loaded" : "no_sample"}
                     >
-                      <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                      <DataTable className="min-w-full text-left text-xs">
+                        <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Type</th>
                             <th className="px-3 py-2 font-semibold">Label</th>
@@ -1960,12 +1965,12 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                             <th className="px-3 py-2 font-semibold">State</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-muted-foreground">
+                        <tbody className="divide-y divide-border text-muted-foreground">
                           {watchDepthTagBuckets.map((bucket: any) => (
                             <tr key={`watch-depth-table-${bucket.label}`}>
                               <td className="px-3 py-2 text-muted-foreground">Depth</td>
                               <td className="max-w-[14rem] min-w-0 whitespace-normal wrap-anywhere px-3 py-2 font-semibold text-foreground">{bucket.label}</td>
-                              <td className="px-3 py-2 text-brand-purple">{bucket.count.toLocaleString()}</td>
+                              <td className="px-3 py-2 text-primary">{bucket.count.toLocaleString()}</td>
                               <td className="px-3 py-2">{watchDepthTagsRange}</td>
                               <td className="px-3 py-2">{bucket.count > 0 ? "Observed" : "No sample"}</td>
                             </tr>
@@ -1974,30 +1979,30 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                             <tr key={`watch-tag-table-${item.tag}`}>
                               <td className="px-3 py-2 text-muted-foreground">Tag</td>
                               <td className="max-w-[14rem] min-w-0 whitespace-normal wrap-anywhere px-3 py-2 font-semibold text-foreground">{item.tag}</td>
-                              <td className="px-3 py-2 text-brand-purple">{item.count.toLocaleString()}</td>
+                              <td className="px-3 py-2 text-primary">{item.count.toLocaleString()}</td>
                               <td className="px-3 py-2">{watchDepthTagsRange}</td>
                               <td className="px-3 py-2">{item.count > 0 ? "Observed" : "No sample"}</td>
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </DataTable>
+                    </TableScrollArea>
                   ) : null}
 
                   {(watchDepthTagBuckets.length > 0 || watchDepthTagDemand.length > 0) && watchDepthTagsViewMode === "cards" ? (
                     <div className="grid gap-3 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                       <div className="border-b border-border p-3">
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Watch depth</p>
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Watch depth</p>
                         <div className="space-y-2">
                           {watchDepthTagBuckets.map((bucket: any) => (
                             <div key={`watch-depth-card-${bucket.label}`} className="border-b border-border px-3 py-2">
                               <div className="mb-2 flex items-center justify-between gap-3 text-sm">
                                 <span className="min-w-0 whitespace-normal wrap-anywhere text-foreground">{bucket.label}</span>
-                                <span className="font-semibold text-brand-purple">{bucket.count.toLocaleString()}</span>
+                                <span className="font-semibold text-primary">{bucket.count.toLocaleString()}</span>
                               </div>
-                              <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                                <div
-                                  className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+                              <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                                <Surface
+                                  className="h-full rounded-full bg-card from-brand-purple"
                                   style={{ width: `${Math.max(6, (bucket.count / watchDepthMaxCount) * 100)}%` }}
                                 />
                               </div>
@@ -2007,11 +2012,11 @@ export function AdminAnalyticsCommerceTab(props: AdminAnalyticsCommerceTabProps)
                       </div>
 
                       <div className="border-b border-border p-3">
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Top tags</p>
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Top tags</p>
                         <div className="flex flex-wrap gap-2">
                           {watchTagVisibleRows.length > 0 ? (
                             watchTagVisibleRows.map((item: any) => (
-                              <span key={`watch-tag-card-${item.tag}`} className="rounded-full border border-brand-purple/25 bg-brand-purple/12 px-3 py-2 text-xs font-semibold text-foreground">
+                              <span key={`watch-tag-card-${item.tag}`} className="rounded-full border border-primary/25 bg-primary/12 px-3 py-2 text-xs font-semibold text-foreground">
                                 {item.tag}; {item.count.toLocaleString()}
                               </span>
                             ))

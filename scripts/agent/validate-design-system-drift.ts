@@ -157,8 +157,8 @@ requireIncludes(helper, "LAUNCH_STATIC_BADGE_CLASSNAME", "design-system helper")
 requireIncludes(helper, "KANDYDROPS_CHART_COLORS", "design-system helper");
 
 requireIncludes(adminBadge, "LAUNCH_BADGE_CONTAINMENT_CLASSNAME", "AdminStatusBadge");
-requireIncludes(adminBadge, "border-brand-purple/30 bg-brand-purple/10", "AdminStatusBadge");
-requireIncludes(adminBadge, "border-gray-500/30 bg-gray-500/10", "AdminStatusBadge");
+requireIncludes(adminBadge, "border-primary/30 bg-primary/10", "AdminStatusBadge loading/cached state (theme tokens)");
+requireIncludes(adminBadge, "border-border bg-secondary text-muted-foreground", "AdminStatusBadge unavailable state (theme tokens)");
 requireAbsent(adminBadge, "cyan-", "AdminStatusBadge");
 requireAbsent(adminBadge, "sky-", "AdminStatusBadge");
 requireAbsent(adminBadge, "slate-", "AdminStatusBadge");

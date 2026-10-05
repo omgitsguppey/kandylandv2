@@ -1,3 +1,6 @@
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
+import { Surface } from "@/components/ui/content-layout";
 import React from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
@@ -254,7 +257,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   data-return-cadence-generated-at-utc={returnCadenceModel.generatedAtUtc}
                 >
                   {returnCadenceViewMode === "chart" ? (
-                    <div
+                    <Surface
                       className="rounded-2xl bg-card h-56 w-full p-3"
                       data-return-cadence-chart="compact"
                     >
@@ -269,18 +272,18 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             margin={{ top: 8, right: 0, left: -18, bottom: 0 }}
                           >
                             <CartesianGrid
-                              stroke="rgba(255,255,255,0.06)"
+                              stroke="var(--border)"
                               vertical={false}
                             />
                             <XAxis
                               dataKey="label"
-                              stroke="#6b7280"
+                              stroke="var(--muted-foreground)"
                               fontSize={11}
                               tickLine={false}
                               axisLine={false}
                             />
                             <YAxis
-                              stroke="#6b7280"
+                              stroke="var(--muted-foreground)"
                               fontSize={11}
                               tickLine={false}
                               axisLine={false}
@@ -289,25 +292,25 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <Bar
                               dataKey="users"
                               name="Users"
-                              fill="#b28cff"
+                              fill="var(--primary)"
                               radius={[10, 10, 0, 0]}
                             />
                           </BarChart>
                         </ResponsiveContainer>
                       )}
-                    </div>
+                    </Surface>
                   ) : null}
 
                   {returnCadenceViewMode === "table" ? (
-                    <div
+                    <TableScrollArea
                       className="rounded-2xl bg-card overflow-x-auto"
                       data-return-cadence-table="compact"
                       data-return-cadence-source-truth={returnCadenceModel.sourceTruth}
                       data-return-cadence-freshness={returnCadenceModel.freshnessState}
                       data-return-cadence-range={returnCadenceModel.range}
                     >
-                      <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                      <DataTable className="min-w-full text-left text-xs">
+                        <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Cadence</th>
                             <th className="px-3 py-2 font-semibold">Users</th>
@@ -316,7 +319,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <th className="px-3 py-2 font-semibold">Freshness</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-muted-foreground">
+                        <tbody className="divide-y divide-border text-muted-foreground">
                           {returnCadenceBuckets.map((bucket) => (
                             <tr key={`return-cadence-table-${bucket.label}`}>
                               <td className="px-3 py-2 font-semibold text-foreground">{bucket.label}</td>
@@ -331,8 +334,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </DataTable>
+                    </TableScrollArea>
                   ) : null}
 
                   {returnCadenceViewMode === "cards" ? (
@@ -356,7 +359,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                       <p className="text-xs text-muted-foreground">
                         {returnCadenceModel.denominatorExplanation}
                       </p>
-                      <div className="grid gap-3 border-t border-white/5 pt-3 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
+                      <div className="grid gap-3 border-t border-border pt-3 min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                         <MetricCard
                           label="Tracked Auth Users"
                           value={
@@ -456,7 +459,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   data-navigation-destinations-source-state={navigationDestinationsModel.destinations.length > 0 ? "loaded" : "no_sample"}
                 >
                   {navigationDestinationsModel.destinations.length > 0 && navigationDestinationsViewMode === "chart" ? (
-                  <div className="rounded-2xl bg-card h-56 w-full p-3">
+                  <Surface className="rounded-2xl bg-card h-56 w-full p-3">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -484,18 +487,18 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                         <Tooltip content={<AnalyticsTooltip />} />
                       </PieChart>
                     </ResponsiveContainer>
-                  </div>
+                  </Surface>
                   ) : null}
 
                   {navigationDestinationsModel.destinations.length > 0 && navigationDestinationsViewMode === "table" ? (
-                    <div
+                    <TableScrollArea
                       className="rounded-2xl bg-card overflow-x-auto"
                       data-navigation-destinations-table="compact"
                       data-navigation-destinations-range={navigationDestinationsModel.range}
                       data-navigation-destinations-source-mode={navigationDestinationsModel.sourceMode}
                     >
-                      <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                      <DataTable className="min-w-full text-left text-xs">
+                        <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Destination</th>
                             <th className="px-3 py-2 font-semibold">Events</th>
@@ -504,14 +507,14 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <th className="px-3 py-2 font-semibold">Last seen</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-muted-foreground">
+                        <tbody className="divide-y divide-border text-muted-foreground">
                           {navigationDestinationsModel.destinations.slice(0, 8).map((item) => (
                             <tr key={`navigation-destinations-table-${item.destinationPath}`}>
                               <td className="max-w-[16rem] px-3 py-2">
                                 <div className="min-w-0 whitespace-normal wrap-anywhere font-semibold text-foreground">{item.destinationLabel}</div>
                                 <div className="min-w-0 whitespace-normal wrap-anywhere text-xs text-muted-foreground">{item.destinationPath}</div>
                               </td>
-                              <td className="px-3 py-2 font-semibold text-brand-purple">{item.count.toLocaleString()}</td>
+                              <td className="px-3 py-2 font-semibold text-primary">{item.count.toLocaleString()}</td>
                               <td className="px-3 py-2" title={item.sourceTruth}>
                                 {formatAdminAnalyticsSourceTruthLabel(item.sourceTruth)}
                               </td>
@@ -526,8 +529,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </DataTable>
+                    </TableScrollArea>
                   ) : null}
 
                   {navigationDestinationsViewMode === "cards" ? (
@@ -553,7 +556,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                                   {item.destinationLabel}
                                 </p>
                               </div>
-                              <span className="text-sm font-bold text-brand-purple">
+                              <span className="text-sm font-semibold text-primary">
                                 {item.count.toLocaleString()}
                               </span>
                             </div>
@@ -575,9 +578,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <p className="mb-3 text-xs text-muted-foreground">
                               {item.explanation}
                             </p>
-                            <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                              <div
-                                className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+                            <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                              <Surface
+                                className="h-full rounded-full bg-card from-brand-purple"
                                 style={{
                                   width: `${Math.max(8, (item.count / Math.max(1, navigationDestinationsModel.destinations[0]?.count || 1)) * 100)}%`,
                                 }}
@@ -725,7 +728,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
 
                   {deviceMixModel.rows.length > 0 && deviceMixViewMode === "table" ? (
                     <div className="border-b border-border overflow-hidden">
-                      <div className="hidden gap-2 border-b border-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground @3xl:grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
+                      <div className="hidden gap-2 border-b border-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground @3xl:grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
                         <span>Device</span>
                         <span>Sessions</span>
                         <span>Share</span>
@@ -762,7 +765,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                         >
                           <div className="mb-2 flex items-start justify-between gap-3">
                             <div className="flex items-center gap-3">
-                              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-brand-purple">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
                                 <Icon className="h-4 w-4" />
                               </div>
                               <div className="min-w-0">
@@ -780,7 +783,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                               </div>
                             </div>
                             <div className="text-right text-xs">
-                              <p className="text-base font-black text-foreground">
+                              <p className="text-base font-semibold text-foreground">
                                 {formatPercent(item.sessionSharePct)}
                               </p>
                               <p className="text-muted-foreground">
@@ -791,22 +794,22 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             </div>
                           </div>
                           <div className="mb-2 grid gap-2 text-xs text-muted-foreground min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
-                            <div className="rounded-xl bg-white/5 px-2 py-1.5">
-                              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Sessions</p>
+                            <div className="rounded-xl bg-secondary px-2 py-1.5">
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">Sessions</p>
                               <p className="mt-0.5 font-semibold text-foreground">{item.sessions.toLocaleString()}</p>
                             </div>
-                            <div className="rounded-xl bg-white/5 px-2 py-1.5">
-                              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Share</p>
+                            <div className="rounded-xl bg-secondary px-2 py-1.5">
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">Share</p>
                               <p className="mt-0.5 font-semibold text-foreground">{formatPercent(item.sessionSharePct)}</p>
                             </div>
-                            <div className="rounded-xl bg-white/5 px-2 py-1.5">
-                              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Engaged</p>
+                            <div className="rounded-xl bg-secondary px-2 py-1.5">
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">Engaged</p>
                               <p className="mt-0.5 font-semibold text-foreground">
                                 {item.engagedSessions === null ? noEngagementSampleLabel : item.engagedSessions.toLocaleString()}
                               </p>
                             </div>
-                            <div className="rounded-xl bg-white/5 px-2 py-1.5">
-                              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Commerce / watch</p>
+                            <div className="rounded-xl bg-secondary px-2 py-1.5">
+                              <p className="text-xs uppercase tracking-wide text-muted-foreground">Commerce / watch</p>
                               <p className="mt-0.5 font-semibold text-foreground">
                                 {deviceMixModel.commerceByDeviceAvailable || deviceMixModel.watchByDeviceAvailable
                                   ? "Available"
@@ -817,9 +820,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                           <p className="mb-2 text-xs text-muted-foreground">
                             {item.recommendation}
                           </p>
-                          <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                            <div
-                              className="h-full rounded-full bg-gradient-to-r from-brand-purple to-cyan-400"
+                          <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                            <Surface
+                              className="h-full rounded-full bg-card from-brand-purple"
                               style={{ width: `${Math.max(8, item.sessionSharePct * 100)}%` }}
                             />
                           </div>
@@ -891,8 +894,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   </p>
                 </div>
                 <div className="mb-3 grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3">
-                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-muted-foreground">
-                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <label className="rounded-2xl border border-border bg-background/25 px-3 py-2 text-xs text-muted-foreground">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Search path
                     </span>
                     <Input
@@ -902,8 +905,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                       className="min-w-0 max-w-full"
                     />
                   </label>
-                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-muted-foreground">
-                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <label className="rounded-2xl border border-border bg-background/25 px-3 py-2 text-xs text-muted-foreground">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Filter
                     </span>
                     <NativeSelect
@@ -918,8 +921,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                       ))}
                     </NativeSelect>
                   </label>
-                  <label className="rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-xs text-muted-foreground">
-                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <label className="rounded-2xl border border-border bg-background/25 px-3 py-2 text-xs text-muted-foreground">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Page size
                     </span>
                     <NativeSelect
@@ -935,7 +938,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                     </NativeSelect>
                   </label>
                   <div className="border-b border-border px-3 py-2 text-xs text-muted-foreground">
-                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Snapshot scope
                     </span>
                     <p className="text-sm text-foreground">
@@ -950,16 +953,16 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   data-admin-analytics-mobile-view-mode={topPathsViewMode}
                 >
                   {pagedTopPathRows.length > 0 && topPathsViewMode === "chart" ? (
-                    <div className="rounded-2xl bg-card h-56 p-3">
+                    <Surface className="rounded-2xl bg-card h-56 p-3">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={pagedTopPathRows}
                           margin={{ top: 4, right: 0, left: -22, bottom: 0 }}
                         >
-                          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                          <CartesianGrid stroke="var(--border)" vertical={false} />
                           <XAxis
                             dataKey="label"
-                            stroke="#6b7280"
+                            stroke="var(--muted-foreground)"
                             fontSize={10}
                             tickLine={false}
                             axisLine={false}
@@ -969,29 +972,29 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             height={52}
                           />
                           <YAxis
-                            stroke="#6b7280"
+                            stroke="var(--muted-foreground)"
                             fontSize={10}
                             tickLine={false}
                             axisLine={false}
                           />
                           <Tooltip content={<AnalyticsTooltip />} />
-                          <Bar dataKey="views" name="Views" fill="#c084fc" radius={[4, 4, 0, 0]} />
-                          <Bar dataKey="engagementRatePct" name="Engagement" fill="#22d3ee" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="views" name="Views" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="engagementRatePct" name="Engagement" fill="var(--info)" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
-                    </div>
+                    </Surface>
                   ) : null}
 
                   {pagedTopPathRows.length > 0 && topPathsViewMode === "table" ? (
-                    <div
+                    <TableScrollArea
                       className="rounded-2xl bg-card overflow-x-auto"
                       data-top-paths-table="compact"
                       data-top-paths-source-truth={topPathsModel.sourceTruth}
                       data-top-paths-page={String(topPathsPage)}
                       data-top-paths-page-size={String(topPathsPageSize)}
                     >
-                      <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                      <DataTable className="min-w-full text-left text-xs">
+                        <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Path</th>
                             <th className="px-3 py-2 font-semibold">Group</th>
@@ -1001,7 +1004,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <th className="px-3 py-2 font-semibold">Engagement</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-muted-foreground">
+                        <tbody className="divide-y divide-border text-muted-foreground">
                           {pagedTopPathRows.map((row) => (
                             <tr
                               key={`top-path-table-${row.path}`}
@@ -1022,13 +1025,13 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </DataTable>
+                    </TableScrollArea>
                   ) : null}
 
                   {topPathsViewMode === "cards" ? (
                     <>
-                      <div className="border-b border-border hidden grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr] gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground @3xl:grid">
+                      <div className="border-b border-border hidden grid-cols-[minmax(0,2.2fr)_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr] gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground @3xl:grid">
                         <span>Path / label</span>
                         <span>Group</span>
                         <span>Views</span>
@@ -1062,12 +1065,12 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                               {" | "}Confidence: {row.confidenceState}
                             </p>
                           </div>
-                          <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                          <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
                             row.issueState === "warning"
-                              ? "bg-amber-500/15 text-amber-200"
+                              ? "bg-warning/15 text-warning"
                               : row.issueState === "review"
-                                ? "bg-white/10 text-gray-200"
-                                : "bg-emerald-500/15 text-emerald-200"
+                                ? "bg-secondary text-foreground"
+                                : "bg-success/15 text-success"
                           }`}>
                             {row.issueState}
                           </span>
@@ -1116,7 +1119,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                     >
                       Prev
                     </Button>
-                    <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Page {topPathsPage}
                     </span>
                     <Button
@@ -1205,16 +1208,16 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                   data-regions-generated-at-utc={regionsModel.generatedAtUtc}
                 >
                   {regionRowsForDisplay.length > 0 && regionsViewMode === "chart" ? (
-                    <div className="rounded-2xl bg-card h-56 p-3">
+                    <Surface className="rounded-2xl bg-card h-56 p-3">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={regionChartRows}
                           margin={{ top: 4, right: 0, left: -22, bottom: 0 }}
                         >
-                          <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+                          <CartesianGrid stroke="var(--border)" vertical={false} />
                           <XAxis
                             dataKey="chartLabel"
-                            stroke="#6b7280"
+                            stroke="var(--muted-foreground)"
                             fontSize={10}
                             tickLine={false}
                             axisLine={false}
@@ -1223,25 +1226,25 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             textAnchor="end"
                             height={52}
                           />
-                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                          <YAxis stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} />
                           <Tooltip content={<AnalyticsTooltip />} />
-                          <Bar dataKey="rawCount" name="Raw traffic" fill="#c084fc" radius={[4, 4, 0, 0]} />
-                          <Bar dataKey="adjustedCount" name="External demand" fill="#22d3ee" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="rawCount" name="Raw traffic" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="adjustedCount" name="External demand" fill="var(--info)" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
-                    </div>
+                    </Surface>
                   ) : null}
 
                   {regionRowsForDisplay.length > 0 && regionsViewMode === "table" ? (
-                    <div
+                    <TableScrollArea
                       className="rounded-2xl bg-card overflow-x-auto"
                       data-regions-table="compact"
                       data-regions-source-truth={regionsModel.sourceTruth}
                       data-regions-freshness={regionsModel.freshnessState}
                       data-regions-filter-mode={regionsFilterMode}
                     >
-                      <table className="min-w-full text-left text-xs">
-                        <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                      <DataTable className="min-w-full text-left text-xs">
+                        <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                           <tr>
                             <th className="px-3 py-2 font-semibold">Region</th>
                             <th className="px-3 py-2 font-semibold">Raw</th>
@@ -1251,7 +1254,7 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             <th className="px-3 py-2 font-semibold">Share</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10 text-muted-foreground">
+                        <tbody className="divide-y divide-border text-muted-foreground">
                           {regionRowsForDisplay.map((item) => (
                             <tr
                               key={`regions-table-${item.country ?? "unknown-country"}-${item.city ?? "unknown-city"}`}
@@ -1269,8 +1272,8 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </DataTable>
+                    </TableScrollArea>
                   ) : null}
 
                   {regionsViewMode === "cards" ? (
@@ -1297,14 +1300,14 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                                     {" | "}Raw: {formatRegionCount(item.rawCount)}
                                   </p>
                                 </div>
-                                <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                                <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
                                   item.demandState === "mostly_internal"
-                                    ? "bg-amber-500/15 text-amber-200"
+                                    ? "bg-warning/15 text-warning"
                                     : item.demandState === "mixed_with_internal" || item.demandState === "review"
-                                      ? "bg-white/10 text-gray-200"
+                                      ? "bg-secondary text-foreground"
                                       : item.demandState === "unknown_location"
-                                        ? "bg-slate-500/20 text-slate-200"
-                                        : "bg-emerald-500/15 text-emerald-200"
+                                        ? "bg-secondary text-foreground"
+                                        : "bg-success/15 text-success"
                                 }`}>
                                   {item.demandState.replace(/_/gu, " ")}
                                 </span>
@@ -1318,9 +1321,9 @@ export function AdminAnalyticsAudienceTab(props: AdminAnalyticsAudienceTabProps)
                               <p className="mt-2 text-xs text-muted-foreground">
                                 {item.explanation}
                               </p>
-                              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                              <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
                                 <div
-                                  className="h-full rounded-full bg-brand-purple"
+                                  className="h-full rounded-full bg-primary"
                                   style={{
                                     width: `${Math.max(8, barRatio * 100)}%`,
                                   }}

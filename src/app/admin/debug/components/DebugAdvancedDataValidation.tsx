@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { useMemo } from "react";
 
 import { useAdminPollingSWR } from "@/hooks/useAdminPollingSWR";
@@ -305,25 +309,25 @@ export function DebugAdvancedDataValidation() {
         >
             <div id="data-validation" className="space-y-3">
                 {panelState.status === "loading" ? (
-                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-100">
+                    <div className="rounded-[1rem] border border-border bg-secondary p-3 text-sm text-foreground">
                         Loading validation checks...
                     </div>
                 ) : null}
                 {panelState.status === "not_validated" ? (
-                    <div className="rounded-[1rem] border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-100">
+                    <div className="rounded-[1rem] border border-warning/20 bg-warning/10 p-3 text-sm text-warning">
                         Validation has not run for this range yet.
                     </div>
                 ) : null}
                 {panelState.status === "failed" ? (
-                    <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">
+                    <div className="rounded-[1rem] border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
                         Validation failed. {effectiveNextAction}
                     </div>
                 ) : null}
                 <div className="grid gap-2 md:grid-cols-4">
                     {uiSemantics.summaryPills.map((pill) => (
-                        <div key={pill.label} className="rounded-[0.9rem] border border-white/10 bg-white/[0.03] p-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">{pill.label}</p>
-                            <p className="mt-1 text-sm font-semibold text-white">{String(pill.state)}</p>
+                        <div key={pill.label} className="rounded-[0.9rem] border border-border bg-secondary p-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{pill.label}</p>
+                            <p className="mt-1 text-sm font-semibold text-foreground">{String(pill.state)}</p>
                         </div>
                     ))}
                 </div>
@@ -345,10 +349,10 @@ export function DebugAdvancedDataValidation() {
                         badgeLabel={panelState.lastValidatedAtUtc ? "INFO" : "NOT VALIDATED"}
                     />
                 </div>
-                <p className="text-xs text-gray-400">{effectiveNextAction}</p>
+                <p className="text-xs text-muted-foreground">{effectiveNextAction}</p>
                 {sourceAgreementFailureRows.length > 0 ? (
-                    <div className="rounded-[1rem] border border-red-400/20 bg-red-500/10 p-3 text-xs text-red-100" data-source-agreement-failures="visible">
-                        <p className="font-semibold text-white">Source agreement failed</p>
+                    <div className="rounded-[1rem] border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive" data-source-agreement-failures="visible">
+                        <p className="font-semibold text-foreground">Source agreement failed</p>
                         <p className="mt-1">Sources to repair: {semanticSummary.sourceAgreement.failedSources.join(", ") || "source comparison rows"}</p>
                         <div className="mt-2 space-y-1">
                             {sourceAgreementFailureRows.map((row) => (
@@ -362,7 +366,7 @@ export function DebugAdvancedDataValidation() {
                 {panelState.checkCount !== null ? Object.entries(summary.grouped).map(([group, checks]) => (
                     <div
                         key={group}
-                        className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-3"
+                        className="rounded-[1rem] border border-border bg-secondary p-3"
                         data-analytics-availability-state={group === "Analytics source health" ? (
                             analyticsSourceHealth
                                 ? [analyticsSourceHealth.availability.ga4.status, analyticsSourceHealth.availability.historicalSnapshot.status, analyticsSourceHealth.availability.legacySupport.status].includes("fail")
@@ -380,11 +384,11 @@ export function DebugAdvancedDataValidation() {
                         data-analytics-chart-readiness-state={group === "Analytics source health" ? analyticsSourceHealth?.chartReadiness.state : undefined}
                     >
                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                            <h3 className="text-sm font-semibold text-white">{group}</h3>
+                            <h3 className="text-sm font-semibold text-foreground">{group}</h3>
                             <Pill label="Rows" value={checks.length} />
                         </div>
                         {group === "Analytics source health" && analyticsSourceHealth ? (
-                            <div className="mb-3 space-y-2 rounded-[0.9rem] border border-white/10 bg-black/20 p-3">
+                            <div className="mb-3 space-y-2 rounded-[0.9rem] border border-border bg-background/20 p-3">
                                 <div className="flex flex-wrap gap-2">
                                     <Pill
                                         label="Availability"
@@ -405,18 +409,18 @@ export function DebugAdvancedDataValidation() {
                                     <Pill label="Range" value={analyticsSourceHealth.range} tone="neutral" />
                                     <Pill label="Chart readiness" value={formatAnalyticsSourceState(analyticsSourceHealth.chartReadiness.state)} tone={toneForContinuity(analyticsSourceHealth.chartReadiness.state)} />
                                 </div>
-                                <div className="grid gap-2 text-xs text-gray-300 md:grid-cols-2">
-                                    <p><span className="font-semibold text-white">Missing days:</span> {formatDayList(analyticsSourceHealth.continuity.missingDays)}</p>
-                                    <p><span className="font-semibold text-white">Recent gaps:</span> {formatDayList(analyticsSourceHealth.continuity.recentGapDays)}</p>
-                                    <p><span className="font-semibold text-white">Source agreement:</span> {formatAnalyticsSourceState(analyticsSourceHealth.sourceAgreement.state)} across {analyticsSourceHealth.sourceAgreement.comparedSources.join(", ")}</p>
-                                    <p><span className="font-semibold text-white">Agreement tolerance:</span> {analyticsSourceHealth.sourceAgreement.tolerance || "10% review / 25% fail"}</p>
-                                    <p><span className="font-semibold text-white">Agreement action:</span> {analyticsSourceHealth.sourceAgreement.nextAction || "Review source agreement before parity promotion."}</p>
-                                    <p><span className="font-semibold text-white">Chart readiness:</span> {analyticsSourceHealth.chartReadiness.reason}</p>
+                                <div className="grid gap-2 text-xs text-muted-foreground md:grid-cols-2">
+                                    <p><span className="font-semibold text-foreground">Missing days:</span> {formatDayList(analyticsSourceHealth.continuity.missingDays)}</p>
+                                    <p><span className="font-semibold text-foreground">Recent gaps:</span> {formatDayList(analyticsSourceHealth.continuity.recentGapDays)}</p>
+                                    <p><span className="font-semibold text-foreground">Source agreement:</span> {formatAnalyticsSourceState(analyticsSourceHealth.sourceAgreement.state)} across {analyticsSourceHealth.sourceAgreement.comparedSources.join(", ")}</p>
+                                    <p><span className="font-semibold text-foreground">Agreement tolerance:</span> {analyticsSourceHealth.sourceAgreement.tolerance || "10% review / 25% fail"}</p>
+                                    <p><span className="font-semibold text-foreground">Agreement action:</span> {analyticsSourceHealth.sourceAgreement.nextAction || "Review source agreement before parity promotion."}</p>
+                                    <p><span className="font-semibold text-foreground">Chart readiness:</span> {analyticsSourceHealth.chartReadiness.reason}</p>
                                 </div>
                             </div>
                         ) : null}
                         {group === "Module coverage" && analyticsModuleCoverage ? (
-                            <div className="mb-3 space-y-2 rounded-[0.9rem] border border-white/10 bg-black/20 p-3">
+                            <div className="mb-3 space-y-2 rounded-[0.9rem] border border-border bg-background/20 p-3">
                                 <div className="flex flex-wrap gap-2">
                                     <Pill label="Required verified" value={`${analyticsModuleCoverage.verifiedRequired}/${analyticsModuleCoverage.requiredModules}`} tone={analyticsModuleCoverage.passAllowed ? "good" : "warn"} truthState="live" />
                                     <Pill label="Required partial" value={analyticsModuleCoverage.partialRequired} tone={analyticsModuleCoverage.partialRequired > 0 ? "warn" : "neutral"} truthState="live" />
@@ -431,13 +435,13 @@ export function DebugAdvancedDataValidation() {
                                         const modules = analyticsModuleCoverage.modules.filter((module) => module.requiredForBeta === requiredTier && module.status !== "verified");
                                         return (
                                             <div key={tier} className="space-y-2" data-module-coverage-tier={requiredTier ? "required" : "optional"}>
-                                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">{tier}</p>
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tier}</p>
                                                 {modules.length === 0 ? (
-                                                    <p className="rounded-md border border-white/10 px-3 py-2 text-xs text-gray-400">{requiredTier ? "No required module gaps." : "No optional module gaps."}</p>
+                                                    <p className="rounded-md border border-border px-3 py-2 text-xs text-muted-foreground">{requiredTier ? "No required module gaps." : "No optional module gaps."}</p>
                                                 ) : modules.map((module) => (
                                                     <div
                                                         key={module.moduleId}
-                                                        className="rounded-md border border-white/10 px-3 py-2 text-xs text-gray-300"
+                                                        className="rounded-md border border-border px-3 py-2 text-xs text-muted-foreground"
                                                         data-module-coverage-id={module.moduleId}
                                                         data-module-coverage-status={module.status}
                                                     >
@@ -448,13 +452,13 @@ export function DebugAdvancedDataValidation() {
                                                             <Pill label="Evidence samples" value={module.evidenceSamples ?? module.sampleCount} tone={(module.evidenceSamples ?? module.sampleCount) === 0 ? "warn" : "neutral"} truthState="live" />
                                                             <Pill label="Last seen" value={formatUtcTimestamp(module.lastSeenAtUtc)} tone={module.lastSeenAtUtc ? "neutral" : "warn"} truthState={module.lastSeenAtUtc ? "live" : "unavailable"} badgeLabel={module.lastSeenAtUtc ? "INFO" : "UNKNOWN"} />
                                                         </div>
-                                                        <p className="mt-2"><span className="font-semibold text-white">Accepted sources:</span> {module.presentAcceptedSources.join(", ") || "None recorded"}</p>
-                                                        <p><span className="font-semibold text-white">Canonical gaps:</span> {module.missingRequiredSources.join(", ") || "None"}</p>
-                                                        <p><span className="font-semibold text-white">External optional gaps:</span> {module.missingExternalOnlySources.join(", ") || "None"}</p>
-                                                        <p><span className="font-semibold text-white">Substitute policy:</span> {module.acceptedSubstituteSources.join(", ") || "No substitute sources configured"}</p>
-                                                        <p><span className="font-semibold text-white">Dependent panels:</span> {module.dependentPanels.join(", ")}</p>
-                                                        <p><span className="font-semibold text-white">Next action:</span> {module.nextAction}</p>
-                                                        <p><span className="font-semibold text-white">Validator:</span> {module.nextValidator}</p>
+                                                        <p className="mt-2"><span className="font-semibold text-foreground">Accepted sources:</span> {module.presentAcceptedSources.join(", ") || "None recorded"}</p>
+                                                        <p><span className="font-semibold text-foreground">Canonical gaps:</span> {module.missingRequiredSources.join(", ") || "None"}</p>
+                                                        <p><span className="font-semibold text-foreground">External optional gaps:</span> {module.missingExternalOnlySources.join(", ") || "None"}</p>
+                                                        <p><span className="font-semibold text-foreground">Substitute policy:</span> {module.acceptedSubstituteSources.join(", ") || "No substitute sources configured"}</p>
+                                                        <p><span className="font-semibold text-foreground">Dependent panels:</span> {module.dependentPanels.join(", ")}</p>
+                                                        <p><span className="font-semibold text-foreground">Next action:</span> {module.nextAction}</p>
+                                                        <p><span className="font-semibold text-foreground">Validator:</span> {module.nextValidator}</p>
                                                     </div>
                                                 ))}
                                             </div>
@@ -463,8 +467,8 @@ export function DebugAdvancedDataValidation() {
                                 </div>
                             </div>
                         ) : null}
-                        <details className="rounded-lg border border-white/10 bg-black/20 text-xs text-gray-300" data-raw-validation-rows-default-open="false">
-                            <summary className="cursor-pointer px-3 py-2 font-semibold text-gray-100">Raw validation rows</summary>
+                        <Disclosure className="rounded-lg border border-border bg-background/20 text-xs text-muted-foreground" data-raw-validation-rows-default-open="false">
+                            <DisclosureSummary className="cursor-pointer px-3 py-2 font-semibold text-foreground">Raw validation rows</DisclosureSummary>
                             <ScrollWrap>
                             <div className="divide-y divide-white/10">
                                 {checks.map((check) => {
@@ -483,13 +487,13 @@ export function DebugAdvancedDataValidation() {
                                     <div key={check.checkKey || check.label} className="space-y-2 px-3 py-2.5">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-white">{check.operatorSummary || check.title || check.label}</p>
-                                                <p className="text-xs text-gray-400">{check.source || "source unknown"} | {check.selectedRange || "range unknown"} | {formatTimestamp(check.lastValidatedAt || data?.generatedAtMs)}</p>
+                                                <p className="truncate text-sm font-semibold text-foreground">{check.operatorSummary || check.title || check.label}</p>
+                                                <p className="text-xs text-muted-foreground">{check.source || "source unknown"} | {check.selectedRange || "range unknown"} | {formatTimestamp(check.lastValidatedAt || data?.generatedAtMs)}</p>
                                             </div>
                                             <Pill label="Status" value={check.status} tone={toneForStatus(check.status)} truthState={truthStateForValidationRow(check)} badgeLabel={statusBadgeLabel} />
                                         </div>
-                                        <p className="text-xs leading-5 text-gray-300">{check.detail}</p>
-                                        {check.whyItMatters ? <p className="text-xs leading-5 text-gray-400">Why it matters: {check.whyItMatters}</p> : null}
+                                        <p className="text-xs leading-5 text-muted-foreground">{check.detail}</p>
+                                        {check.whyItMatters ? <p className="text-xs leading-5 text-muted-foreground">Why it matters: {check.whyItMatters}</p> : null}
                                         {check.eventSource || check.sampleSource ? (
                                             <div className="flex flex-wrap gap-2">
                                                 {check.eventSource ? <Pill label="Event source" value={check.eventSource} truthState="live" badgeLabel="INFO" /> : null}
@@ -517,34 +521,34 @@ export function DebugAdvancedDataValidation() {
                                                 {check.eventNames && check.eventNames.length > 0 ? <Pill label="Expected events" value={check.eventNames.join(", ")} truthState="live" badgeLabel="INFO" /> : null}
                                             </div>
                                         ) : null}
-                                        <p className="text-xs text-gray-400">{telemetryUiState.nextAction || check.recommendedNextCheck || check.action || "No action needed."}</p>
+                                        <p className="text-xs text-muted-foreground">{telemetryUiState.nextAction || check.recommendedNextCheck || check.action || "No action needed."}</p>
                                         {check.failureClusters && check.failureClusters.length > 0 ? (
-                                            <div className="rounded-lg border border-white/10 bg-black/20 p-2 text-xs text-gray-300">
-                                                <p className="font-semibold text-gray-100">Top failure clusters</p>
+                                            <div className="rounded-lg border border-border bg-background/20 p-2 text-xs text-muted-foreground">
+                                                <p className="font-semibold text-foreground">Top failure clusters</p>
                                                 <div className="mt-2 space-y-2">
                                                     {telemetryUiState.failureClusters.map((cluster) => (
-                                                        <div key={`${cluster.source}:${cluster.reasonCode}:${cluster.affectedRoute || "unknown"}`} className="rounded-md border border-white/10 px-2 py-1.5">
-                                                            <p className="text-gray-100">{cluster.reasonCode} · {cluster.count} · {cluster.affectedRoute || "route unknown"}</p>
-                                                            <p className="text-gray-400">{cluster.source} · {cluster.currentLabel} · owner {cluster.likelyOwner} · first {formatUtcTimestamp(cluster.firstSeenAtUtc)} · last {formatUtcTimestamp(cluster.lastSeenAtUtc)}</p>
-                                                            <p className="text-gray-400">{cluster.suggestedAction}</p>
+                                                        <div key={`${cluster.source}:${cluster.reasonCode}:${cluster.affectedRoute || "unknown"}`} className="rounded-md border border-border px-2 py-1.5">
+                                                            <p className="text-foreground">{cluster.reasonCode} · {cluster.count} · {cluster.affectedRoute || "route unknown"}</p>
+                                                            <p className="text-muted-foreground">{cluster.source} · {cluster.currentLabel} · owner {cluster.likelyOwner} · first {formatUtcTimestamp(cluster.firstSeenAtUtc)} · last {formatUtcTimestamp(cluster.lastSeenAtUtc)}</p>
+                                                            <p className="text-muted-foreground">{cluster.suggestedAction}</p>
                                                         </div>
                                                     ))}
                                                 </div>
                                             </div>
                                         ) : null}
-                                        <details className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-xs text-gray-300">
-                                            <summary className="cursor-pointer font-semibold text-gray-100">Technical evidence</summary>
+                                        <Disclosure className="rounded-lg border border-border bg-background/20 px-2 py-1.5 text-xs text-muted-foreground">
+                                            <DisclosureSummary className="cursor-pointer font-semibold text-foreground">Technical evidence</DisclosureSummary>
                                             <div className="mt-2 space-y-1">
                                                 <p>{check.technicalEvidence || check.fullDetails || "No technical evidence recorded."}</p>
-                                                <p className="text-gray-500">Source: {check.sourceDetails || "not recorded"}</p>
+                                                <p className="text-muted-foreground">Source: {check.sourceDetails || "not recorded"}</p>
                                             </div>
-                                        </details>
+                                        </Disclosure>
                                     </div>
                                     );
                                 })}
                             </div>
                             </ScrollWrap>
-                        </details>
+                        </Disclosure>
                     </div>
                 )) : null}
             </div>

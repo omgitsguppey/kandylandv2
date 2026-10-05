@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
 import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import { AdminTruthBadge } from "@/components/Admin/AdminTruthBadge";
@@ -144,8 +148,8 @@ export function StatCard({
                 truthState={resolvedTruth.truthState} hasUsableValue={resolvedTruth.hasUsableValue}
                 pendingInitialLoad={resolvedTruth.pendingInitialLoad} />
             {copy ? (
-                <details className="min-w-0 text-sm text-muted-foreground">
-                    <summary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">Explain this</summary>
+                <Disclosure className="min-w-0 text-sm text-muted-foreground">
+                    <DisclosureSummary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">Explain this</DisclosureSummary>
                     <dl className="space-y-3 pb-3 leading-6">
                         <div><dt className="font-medium text-foreground">What this means</dt><dd className="wrap-anywhere">{copy.operatorSummary}</dd></div>
                         <div><dt className="font-medium text-foreground">Why it matters</dt><dd className="wrap-anywhere">{copy.whyItMatters}</dd></div>
@@ -153,7 +157,7 @@ export function StatCard({
                         <div><dt className="font-medium text-foreground">Technical evidence</dt><dd className="wrap-anywhere">{copy.technicalEvidence}</dd></div>
                         <div><dt className="font-medium text-foreground">Source details</dt><dd className="wrap-anywhere">{copy.sourceDetails}</dd></div>
                     </dl>
-                </details>
+                </Disclosure>
             ) : null}
         </div>
     );

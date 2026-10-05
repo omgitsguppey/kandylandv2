@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { Pill, Section } from "./DebugPrimitives";
 
 const DEBUG_TELEMETRY_NOT_LOADED = "Not loaded";
@@ -98,11 +102,11 @@ export function DebugTelemetryHealthSummary({ telemetryHealth }: { telemetryHeal
                     data-telemetry-admin-load-policy={telemetryHealth?.defaultAdminLoadPolicy || "unknown"}
                 >
                     {lanes.map((lane) => (
-                        <div key={lane.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                        <div key={lane.id} className="rounded-xl border border-border bg-secondary p-3">
                             <div className="flex flex-wrap items-start justify-between gap-2">
                                 <div>
-                                    <p className="text-sm font-semibold text-white">{lane.label}</p>
-                                    <p className="mt-1 text-xs text-gray-400">{lane.lastKnownEvidence}</p>
+                                    <p className="text-sm font-semibold text-foreground">{lane.label}</p>
+                                    <p className="mt-1 text-xs text-muted-foreground">{lane.lastKnownEvidence}</p>
                                 </div>
                                 <Pill
                                     label="Status"
@@ -115,16 +119,16 @@ export function DebugTelemetryHealthSummary({ telemetryHealth }: { telemetryHeal
                                 <Pill label="Freshness" value={lane.freshness} tone="neutral" truthState={truthStateForTelemetryHealthStatus(lane.status)} />
                                 <Pill label="Cost" value={lane.costRisk} tone={lane.costRisk === "high" ? "warn" : "neutral"} truthState="cached" />
                             </div>
-                            <details className="mt-3 rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-xs text-gray-300">
-                                <summary className="cursor-pointer font-semibold text-gray-100">Next action and source</summary>
+                            <Disclosure className="mt-3 rounded-lg border border-border bg-background/20 px-2 py-1.5 text-xs text-muted-foreground">
+                                <DisclosureSummary className="cursor-pointer font-semibold text-foreground">Next action and source</DisclosureSummary>
                                 <p className="mt-2">{lane.nextAction}</p>
-                                <p className="mt-1 text-gray-500">{lane.sourceTruth}</p>
-                            </details>
+                                <p className="mt-1 text-muted-foreground">{lane.sourceTruth}</p>
+                            </Disclosure>
                         </div>
                     ))}
                 </div>
             ) : (
-                <p className="text-sm text-gray-300">Telemetry health is unavailable in this debug payload. Refresh the compact debug summary before using it for operator decisions.</p>
+                <p className="text-sm text-muted-foreground">Telemetry health is unavailable in this debug payload. Refresh the compact debug summary before using it for operator decisions.</p>
             )}
         </Section>
     );

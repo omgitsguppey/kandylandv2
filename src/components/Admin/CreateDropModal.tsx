@@ -1,5 +1,12 @@
 "use client";
 
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { NativeSelectOption } from "@/components/ui/native-select";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Button } from "@/components/ui/Button";
+
+
 import { ReactNode, useState, useEffect, memo, useCallback, useMemo } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase-data";
@@ -140,8 +147,8 @@ function FormSectionCard({
     children: ReactNode;
 }) {
     return (
-        <div className="glass-panel overflow-hidden rounded-[1.8rem] border border-white/6 bg-white/[0.02] shadow-lg">
-            <button
+        <div className="glass-panel overflow-hidden rounded-[1.8rem] border border-border bg-secondary shadow-lg">
+            <Button variant="ghost"
                 type="button"
                 onClick={onToggle}
                 aria-expanded={open}
@@ -149,16 +156,16 @@ function FormSectionCard({
                 data-create-drop-section-trigger={sectionId}
             >
                 <div className="min-w-0">
-                    <div className="flex items-center gap-2 text-sm font-bold text-white">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                         {icon}
                         <span>{title}</span>
                     </div>
-                    {summary ? <p className="mt-1 text-xs text-gray-400">{summary}</p> : null}
-                    {errorSummary ? <p className="mt-1 text-xs font-semibold text-red-300">{errorSummary}</p> : null}
+                    {summary ? <p className="mt-1 text-xs text-muted-foreground">{summary}</p> : null}
+                    {errorSummary ? <p className="mt-1 text-xs font-semibold text-destructive">{errorSummary}</p> : null}
                 </div>
-                {open ? <ChevronUp className="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />}
-            </button>
-            {open ? <div className="border-t border-white/6 px-4 pb-4 pt-3">{children}</div> : null}
+                {open ? <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
+            </Button>
+            {open ? <div className="border-t border-border px-4 pb-4 pt-3">{children}</div> : null}
         </div>
     );
 }
@@ -194,8 +201,8 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
     ].join(" · ");
 
     return (
-        <div className="glass-panel overflow-hidden rounded-[1.8rem] border border-white/6 bg-white/[0.02] shadow-lg">
-            <button
+        <div className="glass-panel overflow-hidden rounded-[1.8rem] border border-border bg-secondary shadow-lg">
+            <Button variant="ghost"
                 type="button"
                 onClick={onToggle}
                 aria-expanded={uploadsOpen}
@@ -203,19 +210,19 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                 data-create-drop-section-trigger="assets"
             >
                 <div className="min-w-0">
-                    <div className="flex items-center gap-2 text-sm font-bold text-white">
-                        <ImageIcon className="h-4 w-4 text-brand-purple" />
-                        <FileAudio className="h-4 w-4 text-brand-purple" />
+                    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <ImageIcon className="h-4 w-4 text-primary" />
+                        <FileAudio className="h-4 w-4 text-primary" />
                         Files & Assets
                     </div>
-                    <p className="mt-1 text-xs text-gray-400">{summary.replace(/[^\x20-\x7E]+/gu, " | ").replace(/\s+\|\s+\|/gu, " | ").trim()}</p>
-                    {errorSummary ? <p className="mt-1 text-xs font-semibold text-red-300">{errorSummary}</p> : null}
+                    <p className="mt-1 text-xs text-muted-foreground">{summary.replace(/[^\x20-\x7E]+/gu, " | ").replace(/\s+\|\s+\|/gu, " | ").trim()}</p>
+                    {errorSummary ? <p className="mt-1 text-xs font-semibold text-destructive">{errorSummary}</p> : null}
                 </div>
-                {uploadsOpen ? <ChevronUp className="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />}
-            </button>
+                {uploadsOpen ? <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" /> : <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
+            </Button>
 
             {uploadsOpen ? (
-                <div className="space-y-3 border-t border-white/6 px-4 pb-4 pt-3">
+                <div className="space-y-3 border-t border-border px-4 pb-4 pt-3">
                     {aiPanel}
                     <div data-create-drop-field="imageUrl">
                         <AssetUploader
@@ -235,7 +242,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                             serverUploadEndpoint={serverUploadEndpoint}
                         />
                     </div>
-                    {errors.imageUrl && <p className="text-red-400 text-xs">{errors.imageUrl.message}</p>}
+                    {errors.imageUrl && <p className="text-destructive text-xs">{errors.imageUrl.message}</p>}
 
                     <div data-create-drop-field="contentUrls">
                         <AssetUploader
@@ -258,7 +265,7 @@ const FilesAndAssetsSection = memo(function FilesAndAssetsSection({
                         />
                     </div>
                     {(errors.contentUrls || errors.contentUrl) && (
-                        <p className="text-red-400 text-xs">{errors.contentUrls?.message || errors.contentUrl?.message}</p>
+                        <p className="text-destructive text-xs">{errors.contentUrls?.message || errors.contentUrl?.message}</p>
                     )}
                 </div>
             ) : null}
@@ -1216,27 +1223,27 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     const titleLabel = isEditMode ? (mode === "creator" ? "Edit submission" : "Edit Drop") : (mode === "creator" ? "Submit drop for review" : "Create Drop");
     const titleId = "create-drop-form-title";
     const panelClassName = cn(
-        "relative flex w-full flex-col overflow-hidden border border-white/10 bg-[#0a0a0a] shadow-2xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50",
+        "relative flex w-full flex-col overflow-hidden border border-border bg-card shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary/50",
         resolvedPresentation === "inline"
-            ? "mt-4 rounded-[1.5rem] shadow-black/20"
+            ? "mt-4 rounded-[1.5rem] shadow-scrim/20"
             : "max-h-[calc(100svh-0.5rem)] max-w-3xl rounded-[2rem] md:max-h-[92vh] md:rounded-3xl",
     );
     const panelBody = (
                     <>
                         {resolvedPresentation === "inline" ? null : (
-                            <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-md md:px-6 md:pb-5 md:pt-5">
-                                <Dialog.Title className="shrink-0 text-xl font-bold text-white">
+                            <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-border bg-background/65 px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] md:px-6 md:pb-5 md:pt-5">
+                                <Dialog.Title className="shrink-0 text-xl font-semibold text-foreground">
                                     {titleLabel}
                                 </Dialog.Title>
                                 <Dialog.Close asChild>
-                                    <button
+                                    <Button variant="ghost"
                                         type="button"
                                         onClick={onClose}
                                         aria-label="Close drop form"
-                                        className="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10"
+                                        className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors border border-transparent hover:border-border"
                                     >
                                         <X className="w-5 h-5" />
-                                    </button>
+                                    </Button>
                                 </Dialog.Close>
                             </header>
                         )}
@@ -1244,7 +1251,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         <div className="custom-scrollbar flex-1 overflow-y-auto px-3 pb-24 pt-3 md:px-5 md:pb-6 md:pt-5">
                             {fetching ? (
                                 <div className="flex items-center justify-center min-h-[300px]">
-                                    <Loader2 className="w-8 h-8 animate-spin text-white" aria-hidden="true" />
+                                    <Loader2 className="w-8 h-8 animate-spin text-foreground" aria-hidden="true" />
                                 </div>
                             ) : (
                                 <form id="create-drop-form" onSubmit={handleSubmit(onSubmit, onError)} onChange={clearSubmitFeedback} className="space-y-3">
@@ -1259,55 +1266,55 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         <div className="space-y-3">
                                         <div className="grid gap-3 sm:grid-cols-2">
                                             <div className="space-y-1">
-                                                <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Creator name {mode === "admin" ? "(optional)" : ""}</label>
-                                                <select
+                                                <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Creator name {mode === "admin" ? "(optional)" : ""}</label>
+                                                <NativeSelect
                                                     {...register("creatorId")}
                                                     disabled={mode === "creator"}
                                                     data-create-drop-field="creatorId"
-                                                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white disabled:opacity-80"
+                                                    className="w-full rounded-xl border border-border bg-background/40 px-3 py-2.5 text-sm text-foreground disabled:opacity-80"
                                                 >
-                                                    <option value="">{mode === "creator" ? "Your creator account" : "Leave unassigned"}</option>
+                                                    <NativeSelectOption value="">{mode === "creator" ? "Your creator account" : "Leave unassigned"}</NativeSelectOption>
                                                     {creatorOptions.map((option) => (
-                                                        <option key={option.uid} value={option.uid}>
+                                                        <NativeSelectOption key={option.uid} value={option.uid}>
                                                             {option.displayName}{option.username ? ` • @${option.username}` : ""}
-                                                        </option>
+                                                        </NativeSelectOption>
                                                     ))}
-                                                </select>
+                                                </NativeSelect>
                                             </div>
                                             <div className="space-y-1">
-                                                <label className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Drop type</label>
-                                                <select
+                                                <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Drop type</label>
+                                                <NativeSelect
                                                     {...register("type")}
                                                     data-create-drop-field="type"
-                                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-brand-purple/50"
+                                                    className="w-full bg-background/40 border border-border rounded-xl px-3 py-2.5 text-sm text-muted-foreground focus:outline-none focus:border-primary/50"
                                                 >
-                                                    <option value="content">Content Drop</option>
-                                                    <option value="promo">Promo / Ad</option>
-                                                    <option value="external">External Link</option>
-                                                </select>
+                                                    <NativeSelectOption value="content">Content Drop</NativeSelectOption>
+                                                    <NativeSelectOption value="promo">Promo / Ad</NativeSelectOption>
+                                                    <NativeSelectOption value="external">External Link</NativeSelectOption>
+                                                </NativeSelect>
                                             </div>
                                         </div>
 
                                         <div>
-                                            <input
+                                            <Input
                                                 {...register("title")}
                                                 type="text"
                                                 placeholder="Drop Title"
                                                 data-create-drop-field="title"
-                                                className="w-full bg-transparent border-none p-0 text-lg font-bold text-white placeholder:text-gray-600 focus:ring-0"
+                                                className="w-full bg-transparent border-none p-0 text-lg font-semibold text-foreground placeholder:text-muted-foreground focus:ring-0"
                                             />
-                                            {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
+                                            {errors.title && <p className="text-destructive text-xs mt-1">{errors.title.message}</p>}
                                         </div>
 
                                         <div>
-                                            <textarea
+                                            <Textarea
                                                 {...register("description")}
                                                 placeholder="Describe what's inside..."
                                                 rows={3}
                                                 data-create-drop-field="description"
-                                                className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-brand-purple/50 transition-all resize-none shadow-inner"
+                                                className="w-full bg-background/40 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-all resize-none shadow-inner"
                                             />
-                                            {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description.message}</p>}
+                                            {errors.description && <p className="text-destructive text-xs mt-1">{errors.description.message}</p>}
                                         </div>
 
                                         {mode === "admin" ? (
@@ -1327,19 +1334,19 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         <div className="flex flex-col gap-2">
                                             <div className="flex flex-wrap gap-2">
                                                 {AVAILABLE_TAGS.map(tag => (
-                                                    <button
+                                                    <Button variant="ghost"
                                                         key={tag}
                                                         type="button"
                                                         onClick={() => toggleTag(tag)}
                                                         className={cn(
-                                                            "px-3 py-1 rounded-full text-xs font-bold border",
+                                                            "px-3 py-1 rounded-full text-xs font-semibold border",
                                                             currentTags.includes(tag)
-                                                                ? "bg-brand-purple text-white border-brand-purple shadow-[0_0_10px_rgba(236,72,153,0.3)]"
-                                                                : "bg-white/5 text-gray-500 border-white/5 hover:bg-white/10"
+                                                                ? "bg-primary text-foreground border-primary shadow-none"
+                                                                : "bg-secondary text-muted-foreground border-border hover:bg-secondary"
                                                         )}
                                                     >
                                                         {tag}
-                                                    </button>
+                                                    </Button>
                                                 ))}
                                             </div>
                                         </div>
@@ -1347,11 +1354,11 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                     </FormSectionCard>
 
                                     {duplicateWarnings.length > 0 ? (
-                                        <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+                                        <div className="rounded-3xl border border-warning/20 bg-warning/10 px-4 py-3 text-sm text-warning">
                                             <div className="flex items-center justify-between gap-3">
                                                 <div>
                                                     <p className="font-bold">Duplicate file names detected</p>
-                                                    <p className="mt-1 text-xs text-amber-100/80">
+                                                    <p className="mt-1 text-xs text-warning/80">
                                                         Remove or rename duplicate files before saving this drop.
                                                     </p>
                                                 </div>
@@ -1359,9 +1366,9 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                             </div>
                                             <div className="mt-3 space-y-2">
                                                 {duplicateWarnings.map((warning) => (
-                                                    <div key={`${warning.dropId}-${warning.title}`} className="rounded-2xl border border-white/10 bg-black/20 px-3 py-2">
-                                                        <p className="text-xs font-bold text-white">{warning.title}</p>
-                                                        <p className="mt-1 text-[11px] text-amber-100/80">
+                                                    <div key={`${warning.dropId}-${warning.title}`} className="rounded-2xl border border-border bg-background/20 px-3 py-2">
+                                                        <p className="text-xs font-semibold text-foreground">{warning.title}</p>
+                                                        <p className="mt-1 text-[11px] text-warning/80">
                                                             {warning.duplicateFileNames.join(", ")}
                                                         </p>
                                                     </div>
@@ -1416,33 +1423,33 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                         errorSummary={sectionErrorMap.pricing?.message}
                                         open={pricingOpen}
                                         onToggle={() => handleToggleSection("pricing")}
-                                        icon={<DollarSign className="h-4 w-4 text-brand-purple" />}
+                                        icon={<DollarSign className="h-4 w-4 text-primary" />}
                                     >
                                         <div className="space-y-3">
                                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                             <div className="space-y-1">
-                                                <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                                                <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase">
                                                     <DollarSign className="w-3 h-3" /> Cost (Drops)
                                                 </label>
-                                                <input
+                                                <Input
                                                     {...register("unlockCost")}
                                                     type="number"
                                                     min="0"
                                                     inputMode="numeric"
                                                     data-create-drop-field="unlockCost"
-                                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono text-base focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                                    className="w-full bg-background/40 border border-border rounded-xl px-3 py-2.5 text-foreground font-mono text-base focus:outline-none focus:border-primary/50 shadow-inner"
                                                 />
                                             </div>
-                                            <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/30 px-3.5 py-3 text-sm text-gray-300">
+                                            <label className="flex items-start gap-3 rounded-2xl border border-border bg-background/30 px-3.5 py-3 text-sm text-muted-foreground">
                                                 <input
                                                     {...register("requiresActiveSubscription")}
                                                     type="checkbox"
                                                     data-create-drop-field="requiresActiveSubscription"
-                                                    className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/40 text-brand-purple focus:ring-brand-purple/50"
+                                                    className="mt-0.5 h-4 w-4 rounded border-border bg-background/40 text-primary focus:ring-primary/50"
                                                 />
                                                 <span className="space-y-1">
-                                                    <span className="block font-semibold text-white">Subscribers only</span>
-                                                    <span className="block text-xs text-gray-400">
+                                                    <span className="block font-semibold text-foreground">Subscribers only</span>
+                                                    <span className="block text-xs text-muted-foreground">
                                                         Active subscribers can access this creator drop without paying the normal unlock cost.
                                                     </span>
                                                 </span>
@@ -1451,40 +1458,40 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
 
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-1">
                                             <div className="space-y-1">
-                                                <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                                                <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase">
                                                     <Calendar className="w-3 h-3" /> Start (CST)
                                                 </label>
-                                                <input
+                                                <Input
                                                     {...register("validFrom")}
                                                     type="datetime-local"
                                                     data-create-drop-field="validFrom"
-                                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner [color-scheme:dark]"
+                                                    className="w-full bg-background/40 border border-border rounded-xl px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary/50 shadow-inner [color-scheme:dark]"
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <label className="text-xs font-bold text-gray-500 flex items-center gap-1 uppercase">
+                                                <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1 uppercase">
                                                     <Calendar className="w-3 h-3" /> End (CST)
                                                 </label>
-                                                <input
+                                                <Input
                                                     {...register("validUntil")}
                                                     type="datetime-local"
                                                     data-create-drop-field="validUntil"
-                                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner [color-scheme:dark]"
+                                                    className="w-full bg-background/40 border border-border rounded-xl px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary/50 shadow-inner [color-scheme:dark]"
                                                 />
                                             </div>
                                         </div>
 
                                             {mode === "admin" ? (
-                                                <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/30 px-3.5 py-3 text-sm text-gray-300">
+                                                <label className="flex items-start gap-3 rounded-2xl border border-border bg-background/30 px-3.5 py-3 text-sm text-muted-foreground">
                                                     <input
                                                         {...register("autoQueueOnExpire")}
                                                         type="checkbox"
                                                         data-create-drop-field="autoQueueOnExpire"
-                                                        className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/40 text-brand-purple focus:ring-brand-purple/50"
+                                                        className="mt-0.5 h-4 w-4 rounded border-border bg-background/40 text-primary focus:ring-primary/50"
                                                     />
                                                     <span className="space-y-1">
-                                                        <span className="block font-semibold text-white">Auto queue when expired</span>
-                                                        <span className="block text-xs text-gray-400">
+                                                        <span className="block font-semibold text-foreground">Auto queue when expired</span>
+                                                        <span className="block text-xs text-muted-foreground">
                                                             Automatically add this drop back into the admin queue once its live window ends.
                                                         </span>
                                                     </span>
@@ -1501,30 +1508,30 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                                             errorSummary={sectionErrorMap.actions?.message}
                                             open={actionSettingsOpen}
                                             onToggle={() => handleToggleSection("actions")}
-                                            icon={<Calendar className="h-4 w-4 text-brand-purple" />}
+                                            icon={<Calendar className="h-4 w-4 text-primary" />}
                                         >
                                             <div className="space-y-3">
                                                 <div>
-                                                    <label className="text-xs text-gray-400 mb-1 block">Button Text</label>
-                                                    <input
+                                                    <label className="text-xs text-muted-foreground mb-1 block">Button Text</label>
+                                                    <Input
                                                         {...register("ctaText")}
                                                         type="text"
                                                         placeholder="Visit Shop"
                                                         data-create-drop-field="ctaText"
-                                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                                        className="w-full bg-background/40 border border-border rounded-xl px-4 py-2 text-foreground text-sm focus:outline-none focus:border-primary/50 shadow-inner"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="text-xs text-gray-400 mb-1 block">URL or app path</label>
-                                                    <input
+                                                    <label className="text-xs text-muted-foreground mb-1 block">URL or app path</label>
+                                                    <Input
                                                         {...register("actionUrl")}
                                                         type="text"
                                                         inputMode="url"
                                                         placeholder="/drops/spring-promo or https://..."
                                                         data-create-drop-field="actionUrl"
-                                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-purple/50 shadow-inner"
+                                                        className="w-full bg-background/40 border border-border rounded-xl px-4 py-2 text-foreground text-sm focus:outline-none focus:border-primary/50 shadow-inner"
                                                     />
-                                                    <p className="mt-1 text-[11px] text-gray-500">Supports on-site relative paths and full http/https destinations.</p>
+                                                    <p className="mt-1 text-[11px] text-muted-foreground">Supports on-site relative paths and full http/https destinations.</p>
                                                 </div>
                                             </div>
                                         </FormSectionCard>
@@ -1534,35 +1541,35 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
                         </div>
 
                         <div
-                            className="shrink-0 border-t border-white/10 bg-black/65 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 backdrop-blur-md md:px-6 md:pb-6"
+                            className="shrink-0 border-t border-border bg-background/65 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 md:px-6 md:pb-6"
                             data-creator-drop-form-footer="mobile_safe"
                         >
                             {submitIssueMessage ? (
                                 <p
-                                    className="mb-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-gray-200"
+                                    className="mb-2 rounded-xl border border-border bg-secondary px-3 py-2 text-xs font-semibold text-foreground"
                                     data-create-drop-submit-reason={submitIssue?.kind || (submitDisabledReason ? "disabled" : "none")}
                                 >
                                     {submitIssueMessage}
                                 </p>
                             ) : null}
                             <div className="grid grid-cols-[minmax(6rem,0.4fr)_1fr] gap-2">
-                            <button
+                            <Button variant="ghost"
                                 type="button"
                                 onClick={onClose}
-                                className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-sm font-bold text-gray-200 transition-colors hover:bg-white/10"
+                                className="min-h-11 rounded-xl border border-border bg-secondary px-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
                             >
                                 Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button variant="ghost"
                                 type="submit"
                                 form="create-drop-form"
                                 disabled={submitDisabled}
                                 data-create-drop-submit-disabled-reason={submitDisabledReason || ""}
-                                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-purple to-[#d946ef] px-3 text-sm font-bold text-white shadow-[0_0_18px_rgba(236,72,153,0.25)] transition-all hover:shadow-[0_0_22px_rgba(236,72,153,0.35)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-card from-brand-purple px-3 text-sm font-semibold text-foreground shadow-none transition-all shadow-none active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                             >
                                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /> : <Save className="w-5 h-5" />}
                                 {isSubmitting ? "Saving..." : isEditMode ? (mode === "creator" ? "Update submission" : "Update Drop") : (mode === "creator" ? "Submit for review" : "Create Drop")}
-                            </button>
+                            </Button>
                             </div>
                         </div>
                     </>
@@ -1589,7 +1596,7 @@ export function CreateDropModal({ isOpen, onClose, dropId, duplicateFromId, onSu
     return (
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" />
+                <Dialog.Overlay className="fixed inset-0 z-50 bg-background/80" />
                 <div className="fixed inset-0 z-50 flex items-end justify-center p-2 md:items-center md:p-4">
                     {panelContent}
                 </div>

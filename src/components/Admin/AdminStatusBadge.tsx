@@ -10,14 +10,14 @@ import { LAUNCH_BADGE_CONTAINMENT_CLASSNAME } from "@/lib/design-system";
 import { cn } from "@/lib/utils";
 
 const STATE_STYLES: Record<AdminSurfaceState, string> = {
-  loading: "border-brand-purple/30 bg-brand-purple/10 text-[#e4d4ff]",
-  live: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-  cached: "border-brand-purple/30 bg-brand-purple/10 text-[#e4d4ff]",
-  degraded: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-  fallback: "border-orange-500/30 bg-orange-500/10 text-orange-300",
-  stale: "border-yellow-500/30 bg-yellow-500/10 text-yellow-300",
-  unavailable: "border-gray-500/30 bg-gray-500/10 text-gray-300",
-  failed: "border-red-500/30 bg-red-500/10 text-red-300",
+  loading: "border-primary/30 bg-primary/10 text-primary",
+  live: "border-success/30 bg-success/10 text-success",
+  cached: "border-primary/30 bg-primary/10 text-primary",
+  degraded: "border-warning/30 bg-warning/10 text-warning",
+  fallback: "border-warning/30 bg-warning/10 text-warning",
+  stale: "border-warning/30 bg-warning/10 text-warning",
+  unavailable: "border-border bg-secondary text-muted-foreground",
+  failed: "border-destructive/30 bg-destructive/10 text-destructive",
 };
 
 export function AdminStatusBadge({

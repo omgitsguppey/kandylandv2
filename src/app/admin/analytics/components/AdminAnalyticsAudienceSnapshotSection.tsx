@@ -109,7 +109,7 @@ export function AdminAnalyticsAudienceSnapshotSection({
               <p className="font-semibold text-foreground">{continuityLabel}</p>
               <p>{audienceSnapshotModel.continuitySummary}</p>
             </div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:grid-cols-3">
               <span>Expected {audienceSnapshotModel.continuity.expectedDays}</span>
               <span>Present {audienceSnapshotModel.continuity.presentDays}</span>
               <span>Missing {audienceSnapshotModel.continuity.missingDays.length}</span>
@@ -178,7 +178,7 @@ export function AdminAnalyticsAudienceSnapshotSection({
         />
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {audienceSnapshotModel.chartSeries.map((series) => (
           <span key={series.key} className="inline-flex items-center gap-1.5">
             <span
@@ -206,30 +206,30 @@ export function AdminAnalyticsAudienceSnapshotSection({
               >
                 <stop
                   offset="5%"
-                  stopColor="#ffffff"
+                  stopColor="var(--foreground)"
                   stopOpacity={0.22}
                 />
                 <stop
                   offset="95%"
-                  stopColor="#ffffff"
+                  stopColor="var(--foreground)"
                   stopOpacity={0}
                 />
               </linearGradient>
             </defs>
             <CartesianGrid
-              stroke="rgba(255,255,255,0.06)"
+              stroke="var(--border)"
               vertical={false}
             />
             <XAxis
               dataKey="date"
-              stroke="#6b7280"
+              stroke="var(--muted-foreground)"
               fontSize={10}
               tickLine={false}
               axisLine={false}
               minTickGap={20}
             />
             <YAxis
-              stroke="#6b7280"
+              stroke="var(--muted-foreground)"
               fontSize={10}
               tickLine={false}
               axisLine={false}
@@ -239,7 +239,7 @@ export function AdminAnalyticsAudienceSnapshotSection({
               type="monotone"
               dataKey="users"
               name="Site users"
-              stroke="#ffffff"
+              stroke="var(--foreground)"
               strokeWidth={2.5}
               fill="url(#historyUsersFill)"
             />
@@ -247,7 +247,7 @@ export function AdminAnalyticsAudienceSnapshotSection({
               type="monotone"
               dataKey="views"
               name="Views"
-              stroke="#b28cff"
+              stroke="var(--primary)"
               strokeWidth={2}
               fillOpacity={0}
             />

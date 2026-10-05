@@ -1,3 +1,5 @@
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
 import React from "react";
 import Image from "next/image";
 import { AdminDashboardModule } from "@/components/Admin/AdminDashboardModule";
@@ -44,12 +46,12 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                     {recentJobs.map((job) => {
                         const jobTruthState = job.status === "failed" ? "failed" : sectionTruthState;
                         return (
-                            <div key={job.id} className="min-w-0 overflow-hidden rounded-[1.1rem] border border-white/10 bg-black/25">
-                                <div className="relative aspect-video overflow-hidden bg-black/40">
+                            <div key={job.id} className="min-w-0 overflow-hidden rounded-[1.1rem] border border-border bg-background/25">
+                                <div className="relative aspect-video overflow-hidden bg-background/40">
                                     {job.imageUrl ? (
                                         <Image src={job.imageUrl} alt={job.title} fill className="object-cover" sizes="(min-width: 1280px) 360px, 100vw" />
                                     ) : (
-                                        <div className="flex h-full flex-col items-center justify-center gap-1 text-xs text-gray-500">
+                                        <div className="flex h-full flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
                                             <AdminStatusBadge state={jobTruthState} className="py-0.5" />
                                             <span>No image saved</span>
                                         </div>
@@ -58,8 +60,8 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                 <div className="space-y-3 p-3.5">
                                     <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
                                         <div className="min-w-0">
-                                            <div className="truncate text-sm font-semibold text-white">{job.title}</div>
-                                            <div className="mt-1 break-words text-xs text-gray-400">
+                                            <div className="truncate text-sm font-semibold text-foreground">{job.title}</div>
+                                            <div className="mt-1 break-words text-xs text-muted-foreground">
                                                 {formatCompactTimestamp(job.requestedAtMs)} - {job.model}
                                             </div>
                                         </div>
@@ -69,10 +71,10 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                                 className={cn(
                                                     "border",
                                                     job.status === "succeeded"
-                                                        ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
+                                                        ? "border-success/20 bg-success/10 text-success"
                                                         : job.status === "failed"
-                                                            ? "border-red-400/20 bg-red-500/10 text-red-100"
-                                                            : "border-cyan-400/20 bg-cyan-500/10 text-cyan-100",
+                                                            ? "border-destructive/20 bg-destructive/10 text-destructive"
+                                                            : "border-info/20 bg-info/10 text-info",
                                                 )}
                                             >
                                                 {job.status}
@@ -80,11 +82,11 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                         </div>
                                     </div>
 
-                                    <details className="overflow-hidden rounded-[0.95rem] border border-white/10 bg-white/[0.03]">
-                                        <summary className="cursor-pointer list-none px-3 py-2.5 text-xs font-semibold text-white hover:bg-white/[0.02]">
+                                    <Disclosure className="overflow-hidden rounded-[0.95rem] border border-border bg-secondary">
+                                        <DisclosureSummary className="cursor-pointer list-none px-3 py-2.5 text-xs font-semibold text-foreground hover:bg-secondary">
                                             Debug details
-                                        </summary>
-                                        <div className="space-y-3 border-t border-white/10 px-3 pb-3 pt-2 text-[11px] text-gray-300">
+                                        </DisclosureSummary>
+                                        <div className="space-y-3 border-t border-border px-3 pb-3 pt-2 text-[11px] text-muted-foreground">
                                             <div className="grid grid-cols-2 gap-2">
                                                 <MetricCard
                                                     label="Queued refs"
@@ -101,44 +103,44 @@ export function AdminAiRecentgenerationsSection({ state }: { state: AdminAiState
                                             </div>
 
                                             <div>
-                                                <div className="mb-0.5 font-semibold text-white">Prompt provenance</div>
-                                                <pre className="whitespace-pre-wrap break-words font-sans text-gray-400">{job.workingPrompt || "Not recorded"}</pre>
+                                                <div className="mb-0.5 font-semibold text-foreground">Prompt provenance</div>
+                                                <pre className="whitespace-pre-wrap break-words font-sans text-muted-foreground">{job.workingPrompt || "Not recorded"}</pre>
                                             </div>
                                             {job.optimizerAdjustedPrompt ? (
                                                 <div>
-                                                    <div className="mb-0.5 font-semibold text-white">Optimizer adjusted</div>
-                                                    <pre className="whitespace-pre-wrap break-words font-sans text-gray-400">{job.optimizerAdjustedPrompt}</pre>
+                                                    <div className="mb-0.5 font-semibold text-foreground">Optimizer adjusted</div>
+                                                    <pre className="whitespace-pre-wrap break-words font-sans text-muted-foreground">{job.optimizerAdjustedPrompt}</pre>
                                                 </div>
                                             ) : null}
                                             {job.providerEnhancedPrompt ? (
                                                 <div>
-                                                    <div className="mb-0.5 font-semibold text-white">Provider enhanced</div>
-                                                    <pre className="whitespace-pre-wrap break-words font-sans text-gray-400">{job.providerEnhancedPrompt}</pre>
+                                                    <div className="mb-0.5 font-semibold text-foreground">Provider enhanced</div>
+                                                    <pre className="whitespace-pre-wrap break-words font-sans text-muted-foreground">{job.providerEnhancedPrompt}</pre>
                                                 </div>
                                             ) : null}
                                             <div>
-                                                <div className="mb-0.5 font-semibold text-white">References used</div>
+                                                <div className="mb-0.5 font-semibold text-foreground">References used</div>
                                                 {(job.referenceAssets || []).length === 0 ? (
-                                                    <p className="flex items-center gap-2 text-[11px] text-gray-400">
+                                                    <p className="flex items-center gap-2 text-[11px] text-muted-foreground">
                                                         <AdminStatusBadge state="unavailable" className="py-0.5" />
                                                         No reference metadata stored on this job.
                                                     </p>
                                                 ) : (
                                                     (job.referenceAssets || []).map((asset) => (
-                                                        <div key={`${job.id}-${asset.id}`} className="flex min-w-0 items-center gap-2 rounded-[0.8rem] border border-white/8 bg-black/25 p-2">
-                                                            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/30">
+                                                        <div key={`${job.id}-${asset.id}`} className="flex min-w-0 items-center gap-2 rounded-[0.8rem] border border-border bg-background/25 p-2">
+                                                            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md border border-border bg-background/30">
                                                                 <Image src={asset.imageUrl} alt={asset.title || "Reference"} fill className="object-cover" sizes="32px" />
                                                             </div>
                                                             <div className="min-w-0">
-                                                                <div className="truncate text-xs font-semibold text-white">{asset.title || asset.fileName || "Reference"}</div>
-                                                                <div className="mt-0.5 text-[10px] text-gray-400">{getReferenceSourceLabel(asset)}</div>
+                                                                <div className="truncate text-xs font-semibold text-foreground">{asset.title || asset.fileName || "Reference"}</div>
+                                                                <div className="mt-0.5 text-[10px] text-muted-foreground">{getReferenceSourceLabel(asset)}</div>
                                                             </div>
                                                         </div>
                                                     ))
                                                 )}
                                             </div>
                                         </div>
-                                    </details>
+                                    </Disclosure>
                                 </div>
                             </div>
                         );

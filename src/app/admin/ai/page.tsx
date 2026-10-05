@@ -86,7 +86,7 @@ export default function AIAdminPage() {
                     </>
                 )}
                 error={state.error && !state.data ? (
-                    <div className="border-l-2 border-red-400 bg-red-500/10 px-4 py-4 text-sm text-red-100" data-admin-ai-safe-error="true">
+                    <div className="border-l-2 border-destructive bg-destructive/10 px-4 py-4 text-sm text-destructive" data-admin-ai-safe-error="true">
                         Failed to load AI cover operations. {safeLoadErrorMessage}
                     </div>
                 ) : null}
@@ -118,12 +118,12 @@ export default function AIAdminPage() {
                 ]}
                 fixture={state.isLocalAdminUiTestSession ? (
                     <div
-                        className="border-l-2 border-amber-400 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+                        className="border-l-2 border-warning bg-warning/10 px-3 py-2 text-xs text-warning"
                         data-admin-ai-fixture-boundary="true"
                     >
                         <div className="flex flex-wrap items-center gap-2">
                             <AdminStatusBadge state="unavailable" />
-                            <span className="font-bold text-white">source_missing fixture.</span>
+                            <span className="font-semibold text-foreground">source_missing fixture.</span>
                             <span>source_missing: Cover Ops source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.</span>
                         </div>
                     </div>

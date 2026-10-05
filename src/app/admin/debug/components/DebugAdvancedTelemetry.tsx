@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { Pill, Section, ScrollWrap, badgeForDebugSeverity, badgeForSourceStatus, toneForSourceStatus, truthStateForSourceStatus } from "./DebugPrimitives";
 import { formatDebugCompactNumber as compactNumber } from "./DebugNumber";
 import { formatRecentActivity as formatRelative } from "./DebugTime";
@@ -202,39 +206,39 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                 }
             >
                 <div className="grid gap-4 lg:grid-cols-1">
-                    <div className="rounded-[1rem] border border-white/10 bg-white/[0.03] p-4">
+                    <div className="rounded-[1rem] border border-border bg-secondary p-4">
                         <div className="flex flex-wrap gap-2">
                             <Pill label="Generated" value={mappingSummary?.generatedAtUtc || "unknown"} tone={toneForSourceStatus(mappingSourceStatus?.status?.status)} truthState={truthStateForSourceStatus(mappingSourceStatus?.status?.status)} badgeLabel={badgeForSourceStatus(mappingSourceStatus?.status?.status)} />
                             <Pill label="Alignment warnings" value={mappingSummary?.alignmentWarningCount ?? 0} tone={(mappingSummary?.alignmentWarningCount ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                             <Pill label="Shared event groups" value={mappingSummary?.sharedEventCount ?? 0} tone={(mappingSummary?.sharedEventCount ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                             <Pill label="Unsupported active assignments" value={mappingSummary?.unsupportedActiveAssignments ?? 0} tone={(mappingSummary?.unsupportedActiveAssignments ?? 0) > 0 ? "warn" : "good"} truthState="live" badgeLabel="LOADED" />
                         </div>
-                         <p className="mt-3 text-xs leading-6 text-gray-400">
+                         <p className="mt-3 text-xs leading-6 text-muted-foreground">
                              Shared events are only safe when criteria, distinct keying, and count thresholds keep task attribution scoped. Event stats are raw trigger evidence. They are not task completion evidence. Lifecycle events and onboarding telemetry can be healthy even when they do not map to a daily task.
                              {mappingSourceStatus?.nextAction ? ` ${mappingSourceStatus.nextAction}` : ""}
                          </p>
-                         <details className="mt-3 rounded-[0.75rem] border border-white/10 bg-black/20 p-3">
-                             <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.16em] text-gray-300">Raw trigger details</summary>
-                             <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-words text-xs text-gray-300">
+                         <Disclosure className="mt-3 rounded-[0.75rem] border border-border bg-background/20 p-3">
+                             <DisclosureSummary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground">Raw trigger details</DisclosureSummary>
+                             <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-words text-xs text-muted-foreground">
                                  {JSON.stringify({ mappingSourceStatus, alignmentWarnings, telemetryCoverageSummary }, null, 2)}
                              </pre>
-                         </details>
+                         </Disclosure>
                      </div>
 
                     <ScrollWrap>
                         <div className="space-y-4">
                             {rowsByPurpose.map((group: any) => (
-                                <div key={group.purpose} className="rounded-[1rem] border border-white/10 bg-white/[0.03]">
-                                    <div className="border-b border-white/10 px-4 py-3">
-                                        <p className="font-semibold text-white">{titleForPurpose(group.purpose)}</p>
+                                <div key={group.purpose} className="rounded-[1rem] border border-border bg-secondary">
+                                    <div className="border-b border-border px-4 py-3">
+                                        <p className="font-semibold text-foreground">{titleForPurpose(group.purpose)}</p>
                                     </div>
                                     <div className="divide-y divide-white/10">
                                         {group.rows.map((row: any) => (
                                             <div key={`${row.eventName}-${row.mappingState}`} className="space-y-2 px-4 py-3">
                                                 <div className="flex flex-wrap items-start justify-between gap-2">
                                                     <div>
-                                                        <p className="font-semibold text-white">{row.displayLabel}</p>
-                                                        <p className="text-xs text-gray-400">{row.eventName}</p>
+                                                        <p className="font-semibold text-foreground">{row.displayLabel}</p>
+                                                        <p className="text-xs text-muted-foreground">{row.eventName}</p>
                                                     </div>
                                                     <Pill label="Mapping" value={labelForMappingState(row.mappingState)} tone={toneForSeverity(row.mappingState === "ready" ? "info" : row.mappingState === "needs_task_mapping" || row.mappingState === "unsupported" ? "error" : "review")} truthState="live" badgeLabel="LOADED" />
                                                 </div>
@@ -249,7 +253,7 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                                     <Pill label="Tracking source" value={row.trackingSource} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                                 </div>
                                                 {row.affectedTasks?.length ? (
-                                                    <div className="space-y-1 text-xs text-gray-400">
+                                                    <div className="space-y-1 text-xs text-muted-foreground">
                                                         {row.affectedTasks.map((task: any) => (
                                                             <div key={task.taskId}>
                                                                 {task.title} ({task.taskId})
@@ -259,9 +263,9 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                                         ))}
                                                     </div>
                                                 ) : null}
-                                                <p className="text-sm text-amber-100">{row.explanation}</p>
+                                                <p className="text-sm text-warning">{row.explanation}</p>
                                                 {row.missingMappingReason ? (
-                                                    <p className="text-xs text-gray-400">Missing mapping reason: {row.missingMappingReason}</p>
+                                                    <p className="text-xs text-muted-foreground">Missing mapping reason: {row.missingMappingReason}</p>
                                                 ) : null}
                                             </div>
                                         ))}
@@ -273,13 +277,13 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
 
                     <div className="space-y-4">
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                                 {receiptMappingGroups.length ? receiptMappingGroups.map((entry: any) => (
                                     <div key={`${entry.eventName}-${entry.normalizedAction}-${entry.mappingState}`} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.normalizedAction === entry.eventName ? entry.eventName : `${entry.eventName} -> ${entry.normalizedAction}`}</p>
-                                                <p className="text-xs text-gray-400">Kind: receipt</p>
+                                                <p className="font-semibold text-foreground">{entry.normalizedAction === entry.eventName ? entry.eventName : `${entry.eventName} -> ${entry.normalizedAction}`}</p>
+                                                <p className="text-xs text-muted-foreground">Kind: receipt</p>
                                             </div>
                                             <Pill label="Mapping" value={entry.mappingState} tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={badgeForDebugSeverity(entry.severity)} />
                                         </div>
@@ -290,25 +294,25 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                             <Pill label="Last seen" value={entry.lastSeenAtUtc || "unknown"} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                         </div>
                                         {entry.mappedTaskTitles?.length ? (
-                                            <p className="text-xs text-gray-400">{entry.mappedTaskTitles.join(", ")}</p>
+                                            <p className="text-xs text-muted-foreground">{entry.mappedTaskTitles.join(", ")}</p>
                                         ) : null}
-                                        <p className="text-sm text-amber-100">{entry.explanation}</p>
-                                        <p className="text-xs text-gray-400">Sample receipts: {(entry.sampleReceiptIds || []).join(", ") || "none"}</p>
+                                        <p className="text-sm text-warning">{entry.explanation}</p>
+                                        <p className="text-xs text-muted-foreground">Sample receipts: {(entry.sampleReceiptIds || []).join(", ") || "none"}</p>
                                     </div>
                                 )) : (
-                                    <div className="px-4 py-4 text-sm text-emerald-100">No grouped receipt mapping issues were detected in the sampled data.</div>
+                                    <div className="px-4 py-4 text-sm text-success">No grouped receipt mapping issues were detected in the sampled data.</div>
                                 )}
                             </div>
                         </ScrollWrap>
 
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                                 {unsafeSharedEventGroups.length ? unsafeSharedEventGroups.map((entry: any) => (
                                     <div key={entry.eventName} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.displayLabel}</p>
-                                                <p className="text-xs text-gray-400">{entry.eventName}</p>
+                                                <p className="font-semibold text-foreground">{entry.displayLabel}</p>
+                                                <p className="text-xs text-muted-foreground">{entry.eventName}</p>
                                             </div>
                                             <Pill label="Ambiguity" value="Shared event needs criteria" tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={badgeForDebugSeverity(entry.severity === "error" ? "error" : "review")} />
                                         </div>
@@ -320,36 +324,36 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                             <Pill label="Required" value={(entry.requiredDisambiguators || []).join(", ") || "none"} tone="neutral" truthState="live" badgeLabel="INFO" />
                                             <Pill label="Missing" value={(entry.missingDisambiguators || []).join(", ") || "none"} tone="warn" truthState="live" badgeLabel="LOADED" />
                                         </div>
-                                        <div className="space-y-1 text-xs text-gray-400">
+                                        <div className="space-y-1 text-xs text-muted-foreground">
                                             {(entry.sharedTasks || []).map((task: any) => (
                                                 <div key={task.taskId}>
                                                     {task.title} ({task.taskId}) | count {task.requiredCount} | keying {task.keying} | entity {task.requiredEntity || "none"} | criteria {task.criteria?.length ? task.criteria.join(", ") : "none"} | criteria state {task.criteriaState}
                                                 </div>
                                             ))}
                                         </div>
-                                        <p className="text-xs text-gray-400">
+                                        <p className="text-xs text-muted-foreground">
                                             {entry.receiptMeaning === PURCHASE_RECEIPT_MEANING
                                                 ? PURCHASE_RECEIPT_MEANING
                                                 : entry.receiptMeaning === UNLOCK_RECEIPT_MEANING
                                                     ? UNLOCK_RECEIPT_MEANING
                                                     : entry.receiptMeaning}
                                         </p>
-                                        <p className="text-sm text-amber-100">{entry.explanation}</p>
+                                        <p className="text-sm text-warning">{entry.explanation}</p>
                                     </div>
                                 )) : (
-                                    <div className="px-4 py-4 text-sm text-emerald-100">No unsafe shared event groups are distorting task attribution in the sampled data.</div>
+                                    <div className="px-4 py-4 text-sm text-success">No unsafe shared event groups are distorting task attribution in the sampled data.</div>
                                 )}
                             </div>
                         </ScrollWrap>
 
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                                 {safeSharedEventGroups.length ? safeSharedEventGroups.map((entry: any) => (
                                     <div key={entry.eventName} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.displayLabel}</p>
-                                                <p className="text-xs text-gray-400">{entry.eventName}</p>
+                                                <p className="font-semibold text-foreground">{entry.displayLabel}</p>
+                                                <p className="text-xs text-muted-foreground">{entry.eventName}</p>
                                             </div>
                                             <Pill label="Ambiguity" value="Ready" tone="good" truthState="live" badgeLabel="LIVE" />
                                         </div>
@@ -359,36 +363,36 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                             <Pill label="Receipts" value={entry.receiptCount} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                             <Pill label="Event stats" value={compactNumber(entry.eventStatsCount)} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                         </div>
-                                        <div className="space-y-1 text-xs text-gray-400">
+                                        <div className="space-y-1 text-xs text-muted-foreground">
                                             {(entry.sharedTasks || []).map((task: any) => (
                                                 <div key={task.taskId}>
                                                     {task.title} ({task.taskId}) | count {task.requiredCount} | keying {task.keying} | entity {task.requiredEntity || "none"} | criteria {task.criteria?.length ? task.criteria.join(", ") : "none"} | criteria state {task.criteriaState}
                                                 </div>
                                             ))}
                                         </div>
-                                        <p className="text-xs text-gray-400">
+                                        <p className="text-xs text-muted-foreground">
                                             {entry.receiptMeaning === PURCHASE_RECEIPT_MEANING
                                                 ? PURCHASE_RECEIPT_MEANING
                                                 : entry.receiptMeaning === UNLOCK_RECEIPT_MEANING
                                                     ? UNLOCK_RECEIPT_MEANING
                                                     : entry.receiptMeaning}
                                         </p>
-                                        <p className="text-sm text-emerald-100">{entry.explanation}</p>
+                                        <p className="text-sm text-success">{entry.explanation}</p>
                                     </div>
                                 )) : (
-                                    <div className="px-4 py-4 text-sm text-emerald-100">No shared event groups currently qualify as safe-with-criteria in the sampled data.</div>
+                                    <div className="px-4 py-4 text-sm text-success">No shared event groups currently qualify as safe-with-criteria in the sampled data.</div>
                                 )}
                             </div>
                         </ScrollWrap>
 
                         <ScrollWrap>
-                            <div className="divide-y divide-white/10 rounded-[1rem] border border-white/10 bg-white/[0.03]">
+                            <div className="divide-y divide-border rounded-[1rem] border border-border bg-secondary">
                                 {unsupportedRuntimeGroups.length ? unsupportedRuntimeGroups.map((entry: any) => (
                                     <div key={entry.groupKey} className="space-y-2 px-4 py-3">
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div>
-                                                <p className="font-semibold text-white">{entry.taskTitle || entry.taskId || entry.triggerEvent || entry.reason}</p>
-                                                <p className="text-xs text-gray-400">{entry.reason} | {entry.source} | {entry.activityScope}</p>
+                                                <p className="font-semibold text-foreground">{entry.taskTitle || entry.taskId || entry.triggerEvent || entry.reason}</p>
+                                                <p className="text-xs text-muted-foreground">{entry.reason} | {entry.source} | {entry.activityScope}</p>
                                             </div>
                                             <Pill label="Severity" value={entry.severity} tone={toneForSeverity(entry.severity)} truthState="live" badgeLabel={badgeForDebugSeverity(entry.severity)} />
                                         </div>
@@ -397,10 +401,10 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                             {entry.taskId ? <Pill label="Task" value={entry.taskId} tone="neutral" truthState="live" badgeLabel="INFO" /> : null}
                                             {entry.triggerEvent ? <Pill label="Trigger" value={entry.triggerEvent} tone="neutral" truthState="live" badgeLabel="INFO" /> : null}
                                         </div>
-                                        <p className="text-sm text-amber-100">{entry.suggestedAction}</p>
+                                        <p className="text-sm text-warning">{entry.suggestedAction}</p>
                                     </div>
                                 )) : (
-                                    <div className="px-4 py-4 text-sm text-emerald-100">No unsupported runtime task records were detected in the sampled data.</div>
+                                    <div className="px-4 py-4 text-sm text-success">No unsupported runtime task records were detected in the sampled data.</div>
                                 )}
                             </div>
                         </ScrollWrap>
@@ -425,17 +429,17 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                 <ScrollWrap>
                     <div className="space-y-4">
                         {coverageRowsByPurpose.map((group: any) => (
-                            <div key={group.purpose} className="rounded-[1rem] border border-white/10 bg-white/[0.03]">
-                                <div className="border-b border-white/10 px-4 py-3">
-                                    <p className="font-semibold text-white">{titleForCoveragePurpose(group.purpose)}</p>
+                            <div key={group.purpose} className="rounded-[1rem] border border-border bg-secondary">
+                                <div className="border-b border-border px-4 py-3">
+                                    <p className="font-semibold text-foreground">{titleForCoveragePurpose(group.purpose)}</p>
                                 </div>
                                 <div className="divide-y divide-white/10">
                                     {group.rows.map((event: any) => (
                                         <div key={`${event.normalizedAction}-${event.eventName}`} className="space-y-2 px-4 py-3">
                                             <div className="flex flex-wrap items-start justify-between gap-2">
                                                 <div>
-                                                    <p className="font-semibold text-white">{event.displayLabel}</p>
-                                                    <p className="text-xs text-gray-400">{event.eventName}</p>
+                                                    <p className="font-semibold text-foreground">{event.displayLabel}</p>
+                                                    <p className="text-xs text-muted-foreground">{event.eventName}</p>
                                                 </div>
                                                 <Pill label="Coverage" value={labelForCoverageState(event.coverageState)} tone={toneForCoverageState(event.coverageState)} truthState="live" badgeLabel="LOADED" />
                                             </div>
@@ -446,9 +450,9 @@ export function DebugAdvancedTelemetry({ data }: DebugAdvancedTelemetryProps) {
                                                 <Pill label="Last seen" value={event.lastSeenAtUtc ? formatRelative(Date.parse(event.lastSeenAtUtc)) : "No recent activity"} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                                 <Pill label="Source" value={event.sourceState} tone="neutral" truthState="live" badgeLabel="LOADED" />
                                             </div>
-                                            {event.mappedTaskTitles?.length ? <p className="text-xs text-gray-400">{event.mappedTaskTitles.join(", ")}</p> : null}
-                                            {event.rawEventNames?.length > 1 ? <p className="text-xs text-gray-400">Aliases seen: {event.rawEventNames.join(", ")}</p> : null}
-                                            <p className="text-sm text-amber-100">{event.explanation}</p>
+                                            {event.mappedTaskTitles?.length ? <p className="text-xs text-muted-foreground">{event.mappedTaskTitles.join(", ")}</p> : null}
+                                            {event.rawEventNames?.length > 1 ? <p className="text-xs text-muted-foreground">Aliases seen: {event.rawEventNames.join(", ")}</p> : null}
+                                            <p className="text-sm text-warning">{event.explanation}</p>
                                         </div>
                                     ))}
                                 </div>

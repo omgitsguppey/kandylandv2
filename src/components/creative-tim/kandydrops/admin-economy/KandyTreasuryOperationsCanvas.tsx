@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
 import { type ComponentProps, type ReactNode } from "react";
@@ -65,16 +69,16 @@ function SliceSection<T>({ id, title, detail, slice, emptyMessage, children, def
     return <section className="min-w-0" data-admin-economy-slice={id}>
         <Card className="min-w-0 gap-0 py-0">
             <CardContent className="min-w-0 px-4">
-                <details open={defaultOpen}>
-                    <summary className="min-h-11 cursor-pointer content-center break-words py-3 text-foreground">
+                <Disclosure open={defaultOpen}>
+                    <DisclosureSummary className="min-h-11 cursor-pointer content-center break-words py-3 text-foreground">
                         <h2 className="inline text-base font-semibold">{title}</h2>
                         <span className={cn("ml-3 inline-block break-words text-sm", slice.error ? "text-destructive" : "text-muted-foreground")}>{sourceLabel}</span>
-                    </summary>
+                    </DisclosureSummary>
                     <div className="min-w-0 space-y-4 pb-4">
                         <p className="text-sm leading-6 text-muted-foreground">{detail}</p>
                         {renderSliceState({ slice, emptyMessage, children })}
                     </div>
-                </details>
+                </Disclosure>
             </CardContent>
         </Card>
     </section>;

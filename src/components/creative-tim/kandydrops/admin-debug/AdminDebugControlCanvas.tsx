@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import type { ElementType, ReactNode } from "react";
 
 import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
@@ -93,10 +97,10 @@ export function AdminDebugControlCanvas({
                     </div>
                 }
             />
-            <details className="min-w-0 border-t border-border" data-admin-debug-evidence-boundary="true">
-                <summary className="flex min-h-11 cursor-pointer items-center py-3 text-sm font-medium">Source and evidence details</summary>
+            <Disclosure className="min-w-0 border-t border-border" data-admin-debug-evidence-boundary="true">
+                <DisclosureSummary className="flex min-h-11 cursor-pointer items-center py-3 text-sm font-medium">Source and evidence details</DisclosureSummary>
                 <div className="pb-4">{evidenceBoundary}</div>
-            </details>
+            </Disclosure>
             <section className="min-w-0">{children}</section>
         </div>
     );

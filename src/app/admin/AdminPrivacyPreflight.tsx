@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
 import { Card } from "@/components/ui/card";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -121,7 +125,7 @@ export function AdminPrivacyPreflight() {
             ) : null}
             {isLocalFixtureSourceMissing ? (
                 <Card
-                    className="min-w-0 gap-1 border border-amber-400/20 p-4 text-sm shadow-none"
+                    className="min-w-0 gap-1 border border-warning/20 p-4 text-sm shadow-none"
                     data-admin-privacy-fixture-boundary="true"
                     data-admin-privacy-fixture-state="source_missing"
                 >
@@ -159,14 +163,14 @@ export function AdminPrivacyPreflight() {
                             <p className="text-muted-foreground">Last seen: {formatLastSeen(check.lastSeenAtUtc)}</p>
                             <p className="text-foreground">Next action: {check.nextAction}</p>
                         </div>
-                        <details className="min-w-0 rounded-md border border-border text-sm text-muted-foreground">
-                            <summary className="min-h-11 cursor-pointer break-words rounded-md px-3 py-3 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Details</summary>
+                        <Disclosure className="min-w-0 rounded-md border border-border text-sm text-muted-foreground">
+                            <DisclosureSummary className="min-h-11 cursor-pointer break-words rounded-md px-3 py-3 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Details</DisclosureSummary>
                             <div className="space-y-1 break-words px-3 pb-3">
                                 <p>Source: {check.source}</p>
                                 <p>Reason: {check.reasonCode}</p>
                                 <p>Severity: {check.severity}</p>
                             </div>
-                        </details>
+                        </Disclosure>
                     </Card>
                 ))}
                 {adminSessionState === "ready" && !isLoading && !error && checks.length === 0 ? (

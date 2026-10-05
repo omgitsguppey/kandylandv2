@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
+import { TableScrollArea } from "@/components/ui/data-table";
+
+
 import { useMemo, useState } from "react";
 import { FileText, MessageSquare, ShieldCheck, ShieldAlert } from "lucide-react";
 
@@ -195,33 +199,33 @@ export function AdminModerationConsole() {
 
             {isLocalFixtureSourceMissing ? (
                 <div
-                    className="relative rounded-[1.35rem] border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
+                    className="relative rounded-[1.35rem] border border-warning/25 bg-warning/10 px-4 py-3 text-sm text-warning"
                     data-admin-moderation-fixture-boundary="true"
                     data-admin-moderation-fixture-state="source_missing"
                 >
                     <p className="font-bold">source_missing fixture.</p>
-                    <p className="mt-1 text-xs leading-5 text-amber-100/80">
+                    <p className="mt-1 text-xs leading-5 text-warning/80">
                         source_missing: moderation source is not loaded in this fixture. Protected evidence reads stay blocked until verified admin access provides the source.
                     </p>
                 </div>
             ) : null}
 
-            <section className="relative border-y border-white/10 bg-black/15 px-4 py-4 sm:px-6" data-moderation-control-tower="risk-posture">
+            <section className="relative border-y border-border bg-background/15 px-4 py-4 sm:px-6" data-moderation-control-tower="risk-posture">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-100/65">Risk posture</p>
-                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold">
-                        <span className="border border-fuchsia-300/20 bg-fuchsia-400/10 px-2 py-1 text-fuchsia-100">Real evidence only</span>
-                        <span className="border border-white/10 bg-black/25 px-2 py-1 text-white">{statusLabel}</span>
-                        <span className="border border-white/10 bg-black/25 px-2 py-1 text-gray-200">{threadCountLabel}</span>
-                        <span className="border border-white/10 bg-black/25 px-2 py-1 text-gray-200">{alertCountLabel}</span>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-primary/65">Risk posture</p>
+                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold">
+                        <span className="border border-primary/20 bg-primary/10 px-2 py-1 text-primary">Real evidence only</span>
+                        <span className="border border-border bg-background/25 px-2 py-1 text-foreground">{statusLabel}</span>
+                        <span className="border border-border bg-background/25 px-2 py-1 text-foreground">{threadCountLabel}</span>
+                        <span className="border border-border bg-background/25 px-2 py-1 text-foreground">{alertCountLabel}</span>
                     </div>
                 </div>
-                <dl className="grid gap-px bg-white/10 sm:grid-cols-2 xl:grid-cols-5">
+                <dl className="grid gap-px bg-secondary sm:grid-cols-2 xl:grid-cols-5">
                     {riskPostureFacts.map(([label, value, detail]) => (
-                        <div key={label} className="bg-[#0d0913] px-3.5 py-3">
-                            <dt className="text-[9px] font-black uppercase tracking-[0.18em] text-fuchsia-100/55">{label}</dt>
-                            <dd className="mt-2 text-2xl font-black leading-6 text-white">{value}</dd>
-                            <p className="mt-1.5 text-xs leading-5 text-gray-400">{detail}</p>
+                        <div key={label} className="bg-card px-3.5 py-3">
+                            <dt className="text-[9px] font-semibold uppercase tracking-wide text-primary/55">{label}</dt>
+                            <dd className="mt-2 text-2xl font-semibold leading-6 text-foreground">{value}</dd>
+                            <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{detail}</p>
                         </div>
                     ))}
                 </dl>
@@ -229,20 +233,20 @@ export function AdminModerationConsole() {
 
             <div className="relative grid min-h-0 gap-3 xl:grid-cols-[21rem_minmax(0,1fr)]">
                 <aside className="space-y-3">
-                    <section className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.045] shadow-[0_16px_40px_rgba(0,0,0,0.2)]" data-moderation-thread-queue="compact">
-                        <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3.5">
+                    <section className="overflow-hidden rounded-[1.6rem] border border-border bg-secondary shadow-none" data-moderation-thread-queue="compact">
+                        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5">
                             <div>
-                                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-fuchsia-100/55">Conversation queue</p>
-                                <h2 className="mt-1 text-base font-black text-white">Linked threads</h2>
+                                <p className="text-[9px] font-semibold uppercase tracking-wide text-primary/55">Conversation queue</p>
+                                <h2 className="mt-1 text-base font-semibold text-foreground">Linked threads</h2>
                             </div>
-                            <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[10px] font-bold text-gray-400">{model.queueHealth}</span>
+                            <span className="rounded-full border border-border bg-background/20 px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">{model.queueHealth}</span>
                         </div>
-                        <div className="flex gap-2 overflow-x-auto p-3 xl:block xl:max-h-[27rem] xl:space-y-2 xl:overflow-y-auto">
+                        <TableScrollArea className="flex gap-2 overflow-x-auto p-3 xl:block xl:max-h-[27rem] xl:space-y-2 xl:overflow-y-auto">
                             {model.sortedThreads.slice(0, 12).map((thread) => {
                                 const unreadCount = Math.max(thread.unreadCountForCreator, thread.unreadCountForUser);
                                 const selected = activeThreadId === thread.id;
                                 return (
-                                    <button
+                                    <Button variant="ghost"
                                         key={thread.id}
                                         type="button"
                                         onClick={() => setSelectedThreadIdOverride(thread.id)}
@@ -250,127 +254,127 @@ export function AdminModerationConsole() {
                                         className={cn(
                                             "min-h-[116px] w-[18rem] shrink-0 rounded-2xl border px-3.5 py-3 text-left transition-colors xl:w-full",
                                             selected
-                                                ? "border-fuchsia-300/35 bg-fuchsia-500/[0.13] shadow-[0_10px_24px_rgba(168,85,247,0.14)]"
-                                                : "border-white/[0.08] bg-black/15 hover:border-white/20 hover:bg-white/[0.055]",
+                                                ? "border-primary/35 bg-primary/[0.13] shadow-none"
+                                                : "border-border bg-background/15 hover:border-border hover:bg-secondary",
                                         )}
                                     >
                                         <div className="flex items-start justify-between gap-2">
-                                            <p className="min-w-0 flex-1 truncate text-sm font-bold text-white">{buildThreadLabel(thread)}</p>
-                                            {unreadCount > 0 ? <span className="rounded-full bg-fuchsia-300 px-2 py-0.5 text-[10px] font-black text-[#26082b]">{unreadCount}</span> : null}
+                                            <p className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">{buildThreadLabel(thread)}</p>
+                                            {unreadCount > 0 ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary">{unreadCount}</span> : null}
                                         </div>
-                                        <p className="mt-2 truncate text-xs text-gray-400">{thread.lastMessagePreview || "No messages yet"}</p>
-                                        <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">{formatRelativeTime(thread.lastMessageAt)}</p>
-                                    </button>
+                                        <p className="mt-2 truncate text-xs text-muted-foreground">{thread.lastMessagePreview || "No messages yet"}</p>
+                                        <p className="mt-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{formatRelativeTime(thread.lastMessageAt)}</p>
+                                    </Button>
                                 );
                             })}
-                            {adminSessionState === "waiting_for_admin_session" ? <div className="p-3 text-xs text-gray-400">collecting: admin access and source state are resolving.</div> : null}
-                            {isLocalFixtureSourceMissing ? <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs text-amber-100">source_missing: moderation thread source is not loaded in this fixture.</div> : null}
-                            {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-gray-400">Loading queue...</div> : null}
-                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-white/10 p-3 text-sm text-gray-400">{isLocalFixtureSourceMissing ? "source_missing: moderation thread evidence is not loaded in this fixture." : "No moderation threads linked."}</div> : null}
-                            {threadsError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{explainModerationRouteError(threadsError, "/api/admin/moderation/threads")}</div> : null}
-                        </div>
+                            {adminSessionState === "waiting_for_admin_session" ? <div className="p-3 text-xs text-muted-foreground">collecting: admin access and source state are resolving.</div> : null}
+                            {isLocalFixtureSourceMissing ? <div className="rounded-xl border border-warning/20 bg-warning/10 p-3 text-xs text-warning">source_missing: moderation thread source is not loaded in this fixture.</div> : null}
+                            {isLoadingThreads && threads.length === 0 ? <div className="p-3 text-xs text-muted-foreground">Loading queue...</div> : null}
+                            {!isLoadingThreads && threads.length === 0 && !threadsError ? <div className="rounded-xl border border-dashed border-border p-3 text-sm text-muted-foreground">{isLocalFixtureSourceMissing ? "source_missing: moderation thread evidence is not loaded in this fixture." : "No moderation threads linked."}</div> : null}
+                            {threadsError ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">{explainModerationRouteError(threadsError, "/api/admin/moderation/threads")}</div> : null}
+                        </TableScrollArea>
                     </section>
 
                     <AdminModerationSecurityAlerts alerts={visibleAlerts} selectedAlertId={model.selectedAlert?.id} isLoading={isLoadingAlerts} error={alertsError} adminSessionState={adminSessionState} onSelectAlert={selectAlert} />
                 </aside>
 
-                <main className="min-h-[540px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#160d22]/80 shadow-[0_20px_54px_rgba(0,0,0,0.28)] backdrop-blur-xl" data-moderation-evidence-workspace="primary">
+                <main className="min-h-[540px] overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-none" data-moderation-evidence-workspace="primary">
                     {model.selectedAlert ? (
                         <div className="flex min-h-[540px] flex-col">
-                            <header className="border-b border-white/10 bg-white/[0.035] px-4 py-4 sm:px-5">
+                            <header className="border-b border-border bg-secondary px-4 py-4 sm:px-5">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200/70">Evidence casefile</p>
-                                        <h2 className="mt-1 text-xl font-black tracking-tight text-white sm:text-2xl">{model.selectedAlert.label}</h2>
-                                        <p className="mt-1 text-sm leading-6 text-gray-400">{model.selectedAlert.message}</p>
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-primary/70">Evidence casefile</p>
+                                        <h2 className="mt-1 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{model.selectedAlert.label}</h2>
+                                        <p className="mt-1 text-sm leading-6 text-muted-foreground">{model.selectedAlert.message}</p>
                                     </div>
-                                    <div className="rounded-2xl border border-fuchsia-300/15 bg-fuchsia-400/[0.08] px-4 py-3 text-right">
-                                        <p className="text-3xl font-black leading-7 text-white">{model.selectedAlert.riskScore}</p>
-                                        <p className="mt-1 text-[10px] font-black uppercase tracking-[0.14em] text-fuchsia-100/70">{model.selectedAlert.riskTier} / {model.selectedAlert.riskConfidence}</p>
+                                    <div className="rounded-2xl border border-primary/15 bg-primary/[0.08] px-4 py-3 text-right">
+                                        <p className="text-3xl font-semibold leading-7 text-foreground">{model.selectedAlert.riskScore}</p>
+                                        <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-primary/70">{model.selectedAlert.riskTier} / {model.selectedAlert.riskConfidence}</p>
                                     </div>
                                 </div>
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[10px] font-bold text-gray-200">False positive: {model.selectedAlert.falsePositiveRisk}</span>
-                                    <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[10px] font-bold text-gray-200">{model.selectedAlert.evidenceCount} evidence</span>
-                                    <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[10px] font-bold text-gray-200">{model.selectedAlert.sourceLabel}</span>
+                                    <span className="rounded-full border border-border bg-background/20 px-3 py-1.5 text-[10px] font-semibold text-foreground">False positive: {model.selectedAlert.falsePositiveRisk}</span>
+                                    <span className="rounded-full border border-border bg-background/20 px-3 py-1.5 text-[10px] font-semibold text-foreground">{model.selectedAlert.evidenceCount} evidence</span>
+                                    <span className="rounded-full border border-border bg-background/20 px-3 py-1.5 text-[10px] font-semibold text-foreground">{model.selectedAlert.sourceLabel}</span>
                                 </div>
                             </header>
 
                             <div className="grid min-h-0 flex-1 gap-3 p-3 sm:p-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
                                 <section className="min-w-0 space-y-3">
-                                    <article className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
-                                        <div className="flex items-center gap-2 text-sm font-black text-white">
-                                            <ShieldAlert className="h-4 w-4 text-fuchsia-200" aria-hidden="true" />
+                                    <article className="rounded-[1.35rem] border border-border bg-background/20 p-4">
+                                        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                            <ShieldAlert className="h-4 w-4 text-primary" aria-hidden="true" />
                                             What was actually observed
                                         </div>
-                                        <p className="mt-3 text-sm leading-6 text-gray-300">{model.selectedAlert.observedSummary}</p>
-                                        <ul className="mt-4 grid gap-2 text-xs leading-5 text-gray-400 sm:grid-cols-2">
-                                            {model.selectedAlert.positiveSignals.map((signal) => <li key={signal} className="rounded-xl border border-emerald-400/10 bg-emerald-400/[0.05] px-3 py-2">+ {signal}</li>)}
-                                            {model.selectedAlert.negativeSignals.map((signal) => <li key={signal} className="rounded-xl border border-amber-400/10 bg-amber-400/[0.05] px-3 py-2">- {signal}</li>)}
+                                        <p className="mt-3 text-sm leading-6 text-muted-foreground">{model.selectedAlert.observedSummary}</p>
+                                        <ul className="mt-4 grid gap-2 text-xs leading-5 text-muted-foreground sm:grid-cols-2">
+                                            {model.selectedAlert.positiveSignals.map((signal) => <li key={signal} className="rounded-xl border border-success/10 bg-success/[0.05] px-3 py-2">+ {signal}</li>)}
+                                            {model.selectedAlert.negativeSignals.map((signal) => <li key={signal} className="rounded-xl border border-warning/10 bg-warning/[0.05] px-3 py-2">- {signal}</li>)}
                                         </ul>
                                     </article>
 
-                                    <article className="rounded-[1.35rem] border border-white/10 bg-black/20 p-4">
+                                    <article className="rounded-[1.35rem] border border-border bg-background/20 p-4">
                                         <div className="flex flex-wrap items-center justify-between gap-2">
-                                            <div className="flex items-center gap-2 text-sm font-black text-white">
-                                                <MessageSquare className="h-4 w-4 text-fuchsia-200" aria-hidden="true" />
+                                            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                                <MessageSquare className="h-4 w-4 text-primary" aria-hidden="true" />
                                                 Linked thread transcript
                                             </div>
-                                            {selectedThread ? <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-bold text-gray-400">Protected context</span> : null}
+                                            {selectedThread ? <span className="rounded-full border border-border bg-secondary px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">Protected context</span> : null}
                                         </div>
                                         {selectedThread ? (
                                             <div className="mt-3 max-h-[42dvh] space-y-2 overflow-y-auto pr-1" data-moderation-transcript-owner="primary-scroll-region">
                                                 {messages.map((message) => (
-                                                    <div key={message.id} className={cn("rounded-2xl border px-3.5 py-3", message.senderRole === "admin" ? "border-cyan-400/20 bg-cyan-400/[0.07]" : message.senderRole === "creator" ? "border-fuchsia-300/20 bg-fuchsia-500/[0.07]" : "border-white/10 bg-white/[0.035]")}>
-                                                        <div className="mb-1.5 flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.12em]">
-                                                            <span className="text-white">{turnLabel(message.senderRole)}</span>
-                                                            <span className="text-gray-500">{formatAbsoluteTime(message.createdAt)}</span>
+                                                    <div key={message.id} className={cn("rounded-2xl border px-3.5 py-3", message.senderRole === "admin" ? "border-info/20 bg-info/[0.07]" : message.senderRole === "creator" ? "border-primary/20 bg-primary/[0.07]" : "border-border bg-secondary")}>
+                                                        <div className="mb-1.5 flex items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-wide">
+                                                            <span className="text-foreground">{turnLabel(message.senderRole)}</span>
+                                                            <span className="text-muted-foreground">{formatAbsoluteTime(message.createdAt)}</span>
                                                         </div>
-                                                        {message.text ? <p className="text-sm leading-6 text-gray-200">{message.text}</p> : null}
+                                                        {message.text ? <p className="text-sm leading-6 text-foreground">{message.text}</p> : null}
                                                     </div>
                                                 ))}
-                                                {adminSessionState === "waiting_for_admin_session" ? <div className="rounded-xl border border-white/10 bg-black/15 p-3 text-xs text-gray-400">collecting: admin access and source state are resolving.</div> : null}
-                                                {isLoadingMessages && messages.length === 0 ? <div className="rounded-xl border border-white/10 bg-black/15 p-3 text-xs text-gray-400">Loading transcript...</div> : null}
-                                                {messagesError ? <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs leading-5 text-red-200">{explainModerationRouteError(messagesError, "/api/admin/moderation/threads/[threadId]")}</div> : null}
+                                                {adminSessionState === "waiting_for_admin_session" ? <div className="rounded-xl border border-border bg-background/15 p-3 text-xs text-muted-foreground">collecting: admin access and source state are resolving.</div> : null}
+                                                {isLoadingMessages && messages.length === 0 ? <div className="rounded-xl border border-border bg-background/15 p-3 text-xs text-muted-foreground">Loading transcript...</div> : null}
+                                                {messagesError ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs leading-5 text-destructive">{explainModerationRouteError(messagesError, "/api/admin/moderation/threads/[threadId]")}</div> : null}
                                             </div>
                                         ) : (
-                                            <p className="mt-3 rounded-xl border border-dashed border-white/15 bg-black/15 p-3 text-sm text-gray-400">No thread linked. Evidence-only alert.</p>
+                                            <p className="mt-3 rounded-xl border border-dashed border-border bg-background/15 p-3 text-sm text-muted-foreground">No thread linked. Evidence-only alert.</p>
                                         )}
                                     </article>
 
-                                    <section className="border-l-2 border-fuchsia-300/45 bg-black/20 px-4 py-4" data-moderation-evidence-file-tray="true">
-                                        <div className="flex items-center gap-2 text-sm font-black text-white">
-                                            <FileText className="h-4 w-4 text-fuchsia-200" aria-hidden="true" />
+                                    <section className="border-l-2 border-primary/45 bg-background/20 px-4 py-4" data-moderation-evidence-file-tray="true">
+                                        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                            <FileText className="h-4 w-4 text-primary" aria-hidden="true" />
                                             Protected evidence files
                                         </div>
                                         <div className="mt-3 space-y-2">
-                                            {attachments.length > 0 ? attachments.map((message) => <AdminEvidenceMediaPreview key={message.id} message={message} />) : <p className="rounded-xl border border-dashed border-white/15 bg-black/15 p-3 text-sm text-gray-500">No files shared in the selected thread.</p>}
+                                            {attachments.length > 0 ? attachments.map((message) => <AdminEvidenceMediaPreview key={message.id} message={message} />) : <p className="rounded-xl border border-dashed border-border bg-background/15 p-3 text-sm text-muted-foreground">No files shared in the selected thread.</p>}
                                         </div>
                                     </section>
                                 </section>
 
                                 <aside className="space-y-3">
-                                    <article className="rounded-[1.35rem] border border-white/10 bg-white/[0.045] p-4">
-                                        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-fuchsia-100/55">Protected context</p>
-                                        <h3 className="mt-1 text-base font-black text-white">Case details</h3>
-                                        <div className="mt-4 space-y-3 text-xs leading-5 text-gray-300">
-                                            <p><span className="font-bold text-gray-500">User:</span> {model.selectedAlert.username || model.selectedAlert.userId || "Unknown"}</p>
-                                            <p><span className="font-bold text-gray-500">Drop:</span> {model.selectedAlert.dropId || "Not linked"}</p>
-                                            <p><span className="font-bold text-gray-500">Asset:</span> {model.selectedAlert.assetKey || "Not linked"}</p>
-                                            <p><span className="font-bold text-gray-500">Last seen:</span> {formatAbsoluteTime(model.selectedAlert.timestamp)}</p>
+                                    <article className="rounded-[1.35rem] border border-border bg-secondary p-4">
+                                        <p className="text-[9px] font-semibold uppercase tracking-wide text-primary/55">Protected context</p>
+                                        <h3 className="mt-1 text-base font-semibold text-foreground">Case details</h3>
+                                        <div className="mt-4 space-y-3 text-xs leading-5 text-muted-foreground">
+                                            <p><span className="font-semibold text-muted-foreground">User:</span> {model.selectedAlert.username || model.selectedAlert.userId || "Unknown"}</p>
+                                            <p><span className="font-semibold text-muted-foreground">Drop:</span> {model.selectedAlert.dropId || "Not linked"}</p>
+                                            <p><span className="font-semibold text-muted-foreground">Asset:</span> {model.selectedAlert.assetKey || "Not linked"}</p>
+                                            <p><span className="font-semibold text-muted-foreground">Last seen:</span> {formatAbsoluteTime(model.selectedAlert.timestamp)}</p>
                                         </div>
                                     </article>
-                                    <article className="rounded-[1.35rem] border border-fuchsia-300/15 bg-fuchsia-500/[0.06] p-4">
-                                        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-fuchsia-100/65">Review decision</p>
-                                        <h3 className="mt-1 text-base font-black text-white">Operator actions</h3>
-                                        <p className="mt-3 text-xs leading-5 text-gray-400">{model.selectedAlert.recommendedAction}</p>
+                                    <article className="rounded-[1.35rem] border border-primary/15 bg-primary/[0.06] p-4">
+                                        <p className="text-[9px] font-semibold uppercase tracking-wide text-primary/65">Review decision</p>
+                                        <h3 className="mt-1 text-base font-semibold text-foreground">Operator actions</h3>
+                                        <p className="mt-3 text-xs leading-5 text-muted-foreground">{model.selectedAlert.recommendedAction}</p>
                                         <div className="mt-4 grid gap-2">
                                             {["reviewed", "escalated", "dismissed_false_positive"].map((action) => (
-                                                <button key={action} type="button" onClick={() => actionClick(action)} className="min-h-11 rounded-xl border border-white/10 bg-black/20 px-3 text-sm font-bold text-white transition-colors hover:bg-white/[0.08]">
+                                                <Button variant="ghost" key={action} type="button" onClick={() => actionClick(action)} className="min-h-11 rounded-xl border border-border bg-background/20 px-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary">
                                                     {action === "reviewed" ? "Mark reviewed" : action === "escalated" ? "Escalate" : "Dismiss false positive"}
-                                                </button>
+                                                </Button>
                                             ))}
-                                            <div data-moderation-action-state="not_configured" className="rounded-xl border border-white/10 bg-black/20 p-3 text-xs leading-5 text-gray-400"><span className="font-bold text-gray-200">Not configured.</span> Account restrictions and file access blocks need a connected admin action source before they can run here.</div>
+                                            <div data-moderation-action-state="not_configured" className="rounded-xl border border-border bg-background/20 p-3 text-xs leading-5 text-muted-foreground"><span className="font-semibold text-foreground">Not configured.</span> Account restrictions and file access blocks need a connected admin action source before they can run here.</div>
                                         </div>
                                     </article>
                                 </aside>
@@ -378,11 +382,11 @@ export function AdminModerationConsole() {
                         </div>
                     ) : (
                         <div className="flex min-h-[32rem] flex-col items-center justify-center p-6 text-center">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-fuchsia-300/15 bg-fuchsia-400/[0.08]">
-                                <ShieldCheck className="h-8 w-8 text-fuchsia-100/80" aria-hidden="true" />
+                            <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-primary/15 bg-primary/[0.08]">
+                                <ShieldCheck className="h-8 w-8 text-primary/80" aria-hidden="true" />
                             </div>
-                            <h2 className="mt-4 text-lg font-black text-white">No alert selected</h2>
-                            <p className="mt-1 max-w-sm text-sm leading-6 text-gray-400">Select a risk alert. Empty workspaces stay compact and truthful instead of showing fake moderation tools.</p>
+                            <h2 className="mt-4 text-lg font-semibold text-foreground">No alert selected</h2>
+                            <p className="mt-1 max-w-sm text-sm leading-6 text-muted-foreground">Select a risk alert. Empty workspaces stay compact and truthful instead of showing fake moderation tools.</p>
                         </div>
                     )}
                 </main>

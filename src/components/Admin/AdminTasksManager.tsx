@@ -1,5 +1,12 @@
 "use client";
 
+import { Surface } from "@/components/ui/content-layout";
+import { NativeSelectOption } from "@/components/ui/native-select";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/Button";
+
+
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import {
@@ -82,15 +89,15 @@ function TaskCard({
   action?: ReactNode;
 }) {
   return (
-    <section className="glass-panel rounded-[1.5rem] border border-white/10 p-3.5 sm:p-4">
+    <section className="glass-panel rounded-[1.5rem] border border-border p-3.5 sm:p-4">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-2.5">
         <div className="flex min-w-0 items-start gap-2.5">
-          <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[1rem] border border-brand-purple/25 bg-brand-purple/15 text-white">
+          <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[1rem] border border-primary/25 bg-primary/15 text-foreground">
             <Icon className="h-4.5 w-4.5" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-bold text-white">{title}</h3>
-            <p className="mt-0.5 text-xs leading-5 text-gray-400">{subtitle}</p>
+            <h3 className="text-base font-semibold text-foreground">{title}</h3>
+            <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{subtitle}</p>
           </div>
         </div>
         {action}
@@ -300,12 +307,12 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
         subtitle="Create global or user-specific missions with reward, progress, cooldown, and filter controls."
         icon={Plus}
         action={
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={() => void mutate()}
             disabled={isLoading}
             aria-label="Refresh task snapshot"
-            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-gray-200 transition-colors hover:border-brand-purple/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-secondary px-3 py-2 text-xs font-semibold text-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -313,187 +320,187 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
               <Repeat className="h-4 w-4" aria-hidden="true" />
             )}
             Refresh
-          </button>
+          </Button>
         }
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <input
+          <Input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Task title"
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           />
-          <input
+          <Input
             value={subtitle}
             onChange={(event) => setSubtitle(event.target.value)}
             placeholder="Task subtitle"
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           />
-          <input
+          <Input
             value={ctaLabel}
             onChange={(event) => setCtaLabel(event.target.value)}
             placeholder="CTA label"
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           />
-          <select
+          <NativeSelect
             value={eventName}
             onChange={(event) => setEventName(event.target.value)}
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           >
             {(data?.eventOptions ?? []).map((option) => (
-              <option key={option.eventName} value={option.eventName} className="bg-[#111]">
+              <NativeSelectOption key={option.eventName} value={option.eventName} className="bg-card">
                 {option.label}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
-          <select
+          </NativeSelect>
+          <NativeSelect
             value={actionType}
             onChange={(event) => setActionType(event.target.value)}
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           >
             {(data?.actionOptions ?? []).map((option) => (
-              <option key={option.value} value={option.value} className="bg-[#111]">
+              <NativeSelectOption key={option.value} value={option.value} className="bg-card">
                 {option.label}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
-          <select
+          </NativeSelect>
+          <NativeSelect
             value={icon}
             onChange={(event) => setIcon(event.target.value)}
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           >
             {(data?.iconOptions ?? []).map((option) => (
-              <option key={option.value} value={option.value} className="bg-[#111]">
+              <NativeSelectOption key={option.value} value={option.value} className="bg-card">
                 {option.label}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
-          <select
+          </NativeSelect>
+          <NativeSelect
             value={group}
             onChange={(event) => setGroup(event.target.value)}
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           >
             {["visit", "notifications", "unwrap", "watch", "wallet", "purchase", "feedback", "share"].map((option) => (
-              <option key={option} value={option} className="bg-[#111]">
+              <NativeSelectOption key={option} value={option} className="bg-card">
                 {option}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
-          <input
+          </NativeSelect>
+          <Input
             type="number"
             min={DAILY_TASK_MIN_REWARD}
             max={DAILY_TASK_MAX_REWARD}
             value={reward}
             onChange={(event) => setReward(Number(event.target.value))}
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           />
-          <input
+          <Input
             type="number"
             min={1}
             max={10}
             value={maxProgress}
             onChange={(event) => setMaxProgress(Number(event.target.value))}
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           />
-          <input
+          <Input
             type="number"
             min={1}
             max={30}
             value={cooldownDays}
             onChange={(event) => setCooldownDays(Number(event.target.value))}
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           />
-          <input
+          <Input
             value={uniqueByParamKey}
             onChange={(event) => setUniqueByParamKey(event.target.value)}
             placeholder="Unique by param key (optional)"
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           />
-          <select
+          <NativeSelect
             value={criteriaMode}
             onChange={(event) => setCriteriaMode(event.target.value as CriteriaMode)}
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           >
-            <option value="none" className="bg-[#111]">No criteria</option>
-            <option value="paramEquals" className="bg-[#111]">Exact param match</option>
-            <option value="minNumberParam" className="bg-[#111]">Minimum number param</option>
-            <option value="includesAnyParam" className="bg-[#111]">Includes any value</option>
-          </select>
-          <input
+            <NativeSelectOption value="none" className="bg-card">No criteria</NativeSelectOption>
+            <NativeSelectOption value="paramEquals" className="bg-card">Exact param match</NativeSelectOption>
+            <NativeSelectOption value="minNumberParam" className="bg-card">Minimum number param</NativeSelectOption>
+            <NativeSelectOption value="includesAnyParam" className="bg-card">Includes any value</NativeSelectOption>
+          </NativeSelect>
+          <Input
             value={criteriaKey}
             onChange={(event) => setCriteriaKey(event.target.value)}
             placeholder="Criteria param key"
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           />
-          <input
+          <Input
             value={criteriaValue}
             onChange={(event) => setCriteriaValue(event.target.value)}
             placeholder={criteriaMode === "includesAnyParam" ? "Values, separated, by, commas" : "Criteria value"}
-            className="h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+            className="h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
           />
-          <select
+          <NativeSelect
             value={criteriaValueType}
             onChange={(event) => setCriteriaValueType(event.target.value as "string" | "number" | "boolean")}
             className={cn(
-              "h-12 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple",
+              "h-12 rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary",
               criteriaMode !== "paramEquals" && "opacity-60",
             )}
             disabled={criteriaMode !== "paramEquals"}
           >
-            <option value="string" className="bg-[#111]">Exact value is text</option>
-            <option value="number" className="bg-[#111]">Exact value is number</option>
-            <option value="boolean" className="bg-[#111]">Exact value is true/false</option>
-          </select>
+            <NativeSelectOption value="string" className="bg-card">Exact value is text</NativeSelectOption>
+            <NativeSelectOption value="number" className="bg-card">Exact value is number</NativeSelectOption>
+            <NativeSelectOption value="boolean" className="bg-card">Exact value is true/false</NativeSelectOption>
+          </NativeSelect>
         </div>
 
-        <p className="mt-3 text-xs leading-5 text-gray-500">
+        <p className="mt-3 text-xs leading-5 text-muted-foreground">
           Use `uniqueByParamKey` for distinct progress keys, and use criteria to limit valid events.
         </p>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Assignment scope</p>
+          <div className="rounded-[1.4rem] border border-border bg-background/25 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Assignment scope</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => setScope("global")}
                 className={cn(
-                  "rounded-full border px-4 py-2 text-sm font-bold transition-colors",
-                  scope === "global" ? "border-brand-purple bg-brand-purple text-white" : "border-white/10 bg-white/5 text-gray-300",
+                  "rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
+                  scope === "global" ? "border-primary bg-primary text-foreground" : "border-border bg-secondary text-muted-foreground",
                 )}
               >
                 Global rotation
-              </button>
-              <button
+              </Button>
+              <Button variant="ghost"
                 type="button"
                 onClick={() => setScope("user")}
                 className={cn(
-                  "rounded-full border px-4 py-2 text-sm font-bold transition-colors",
-                  scope === "user" ? "border-brand-purple bg-brand-purple text-white" : "border-white/10 bg-white/5 text-gray-300",
+                  "rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
+                  scope === "user" ? "border-primary bg-primary text-foreground" : "border-border bg-secondary text-muted-foreground",
                 )}
               >
                 Specific user
-              </button>
+              </Button>
             </div>
 
             {scope === "user" ? (
               <div className="mt-3 space-y-2">
-                <input
+                <Input
                   list="task-target-users"
                   value={targetUserId}
                   onChange={(event) => setTargetUserId(event.target.value)}
                   placeholder="Target user UID"
-                  className="h-12 w-full rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-white outline-none focus:border-brand-purple"
+                  className="h-12 w-full rounded-2xl border border-border bg-secondary px-4 text-sm text-foreground outline-none focus:border-primary"
                 />
                 <datalist id="task-target-users">
                   {users.map((user) => (
-                    <option key={user.uid} value={user.uid}>
+                    <NativeSelectOption key={user.uid} value={user.uid}>
                       {user.username ? `@${user.username}` : user.displayName || user.email || user.uid}
-                    </option>
+                    </NativeSelectOption>
                   ))}
                 </datalist>
                 {targetUser ? (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-muted-foreground">
                     Targeting {targetUser.username ? `@${targetUser.username}` : targetUser.displayName || targetUser.email || targetUser.uid}
                   </p>
                 ) : null}
@@ -501,48 +508,48 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
             ) : null}
           </div>
 
-          <div className="rounded-[1.4rem] border border-white/10 bg-black/25 p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">Rotation rules</p>
+          <div className="rounded-[1.4rem] border border-border bg-background/25 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Rotation rules</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <span className="rounded-full border border-brand-purple/25 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+              <span className="rounded-full border border-primary/25 bg-primary/15 px-3 py-1 text-xs font-semibold text-foreground">
                 +{reward} GD
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
+              <span className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-semibold text-foreground">
                 {maxProgress} step{maxProgress === 1 ? "" : "s"}
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-gray-200">
+              <span className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-semibold text-foreground">
                 {cooldownDays} day cooldown
               </span>
             </div>
-            <label className="mt-4 flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+            <label className="mt-4 flex cursor-pointer items-center justify-between rounded-2xl border border-border bg-secondary px-4 py-3">
               <div>
-                <p className="text-sm font-bold text-white">One-time task</p>
-                <p className="text-xs leading-5 text-gray-400">Completing it retires it from future rotation for that user.</p>
+                <p className="text-sm font-semibold text-foreground">One-time task</p>
+                <p className="text-xs leading-5 text-muted-foreground">Completing it retires it from future rotation for that user.</p>
               </div>
-              <button
+              <Button variant="ghost"
                 type="button"
                 aria-pressed={oneTime}
                 onClick={() => setOneTime((prev) => !prev)}
                 className={cn(
                   "flex h-7 w-12 items-center rounded-full border px-1 transition-colors",
-                  oneTime ? "border-brand-purple bg-brand-purple/90 justify-end" : "border-white/10 bg-black/40 justify-start",
+                  oneTime ? "border-primary bg-primary/90 justify-end" : "border-border bg-background/40 justify-start",
                 )}
               >
-                <span className="h-5 w-5 rounded-full bg-white" />
-              </button>
+                <span className="h-5 w-5 rounded-full bg-foreground" />
+              </Button>
             </label>
           </div>
         </div>
 
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={handleCreateTask}
           disabled={submitting}
-          className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-purple bg-brand-purple px-5 py-2 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+          className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-primary bg-primary px-5 py-2 text-sm font-semibold text-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Plus className="h-4 w-4" />}
           Create task
-        </button>
+        </Button>
       </TaskCard>
 
       <TaskCard
@@ -552,37 +559,37 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
       >
         {isLoading ? (
           <div className="py-6 text-center">
-            <Loader2 className="mx-auto h-6 w-6 animate-spin text-brand-purple" aria-hidden="true" />
+            <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" aria-hidden="true" />
           </div>
         ) : (data?.customTasks?.length ?? 0) === 0 ? (
-          <p className="text-sm text-gray-400">No custom tasks created yet.</p>
+          <p className="text-sm text-muted-foreground">No custom tasks created yet.</p>
         ) : (
           <div className="grid gap-3">
             {data?.customTasks.map((task) => {
               const isActive = task.active === true;
               return (
-                <div key={task.id} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                <div key={task.id} className="rounded-[1.4rem] border border-border bg-background/30 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-base font-bold text-white">{normalizeString(task.title, "Untitled task")}</h4>
+                        <h4 className="text-base font-semibold text-foreground">{normalizeString(task.title, "Untitled task")}</h4>
                         <span className={cn(
-                          "rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]",
-                          isActive ? "border-brand-purple/30 bg-brand-purple/15 text-white" : "border-white/10 bg-white/5 text-gray-400",
+                          "rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide",
+                          isActive ? "border-primary/30 bg-primary/15 text-foreground" : "border-border bg-secondary text-muted-foreground",
                         )}>
                           {isActive ? "Active" : "Paused"}
                         </span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-gray-300">
+                        <span className="rounded-full border border-border bg-secondary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                           {normalizeString(task.scope, "global")}
                         </span>
                         {task.oneTime === true ? (
-                          <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+                          <span className="rounded-full border border-success/25 bg-success/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-success">
                             One time
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-1 text-sm leading-6 text-gray-400">{normalizeString(task.subtitle)}</p>
-                      <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">{normalizeString(task.subtitle)}</p>
+                      <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                         <span>{TELEMETRY_EVENT_LABELS[normalizeString(task.eventName)] || normalizeString(task.eventName)}</span>
                         <span>Reward: +{normalizeNumber(task.reward)} GD</span>
                         <span>Progress: {normalizeNumber(task.maxProgress, 1)}</span>
@@ -591,18 +598,18 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
                       </div>
                     </div>
 
-                    <button
+                    <Button variant="ghost"
                       type="button"
                       disabled={updatingTaskId === task.id}
                       onClick={() => void toggleTaskState(task.id, !isActive)}
                       className={cn(
-                        "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-opacity disabled:opacity-60",
-                        isActive ? "border-white/10 bg-white/5 text-white" : "border-brand-purple bg-brand-purple text-white",
+                        "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-opacity disabled:opacity-60",
+                        isActive ? "border-border bg-secondary text-foreground" : "border-primary bg-primary text-foreground",
                       )}
                     >
                       {updatingTaskId === task.id ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
                       {isActive ? "Pause" : "Activate"}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               );
@@ -618,25 +625,25 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
           icon={Trophy}
         >
           {(taskPerformance.length ?? 0) === 0 ? (
-            <p className="text-sm text-gray-400">No task performance data has been recorded yet.</p>
+            <p className="text-sm text-muted-foreground">No task performance data has been recorded yet.</p>
           ) : (
             <div className="grid gap-3">
               {taskPerformance.slice(0, 8).map((task) => (
-                <div key={task.id} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                <div key={task.id} className="rounded-[1.4rem] border border-border bg-background/30 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm font-bold text-white">{task.title}</p>
-                      <p className="mt-1 text-xs text-gray-500">Last activity {task.lastEventAt ? formatRelativeTime(task.lastEventAt) : "just now"}</p>
+                      <p className="text-sm font-semibold text-foreground">{task.title}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Last activity {task.lastEventAt ? formatRelativeTime(task.lastEventAt) : "just now"}</p>
                     </div>
-                    <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+                    <span className="rounded-full border border-primary/30 bg-primary/15 px-3 py-1 text-xs font-semibold text-foreground">
                       {task.completionRate}% done
                     </span>
                   </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-300 sm:grid-cols-4">
-                    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">Assigned: {task.assigned}</div>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">Completed: {task.completed}</div>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">Failed: {task.failed}</div>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                    <div className="rounded-2xl border border-border bg-secondary px-3 py-2">Assigned: {task.assigned}</div>
+                    <div className="rounded-2xl border border-border bg-secondary px-3 py-2">Completed: {task.completed}</div>
+                    <div className="rounded-2xl border border-border bg-secondary px-3 py-2">Failed: {task.failed}</div>
+                    <div className="rounded-2xl border border-border bg-secondary px-3 py-2">
                       {task.avgCompletionMins > 0 ? `${task.avgCompletionMins}m avg` : "No avg yet"}
                     </div>
                   </div>
@@ -652,24 +659,24 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
           icon={Activity}
         >
           {(data?.eventStats?.length ?? 0) === 0 ? (
-            <p className="text-sm text-gray-400">No event activity has been recorded yet.</p>
+            <p className="text-sm text-muted-foreground">No event activity has been recorded yet.</p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {data?.eventStats.slice(0, 12).map((stat) => {
                 const label = TELEMETRY_EVENT_LABELS[normalizeString(stat.eventName)] || normalizeString(stat.eventName);
                 const lastSeenAt = normalizeNumber(stat.lastSeenAt);
                 return (
-                  <div key={stat.id} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+                  <div key={stat.id} className="rounded-[1.4rem] border border-border bg-background/30 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-bold text-white">{label}</p>
-                        <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-gray-500">{normalizeString(stat.eventName)}</p>
+                        <p className="text-sm font-semibold text-foreground">{label}</p>
+                        <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">{normalizeString(stat.eventName)}</p>
                       </div>
-                      <div className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-3 py-1 text-xs font-bold text-white">
+                      <div className="rounded-full border border-primary/30 bg-primary/15 px-3 py-1 text-xs font-semibold text-foreground">
                         {normalizeNumber(stat.totalCount)}
                       </div>
                     </div>
-                    <p className="mt-3 text-xs text-gray-400">
+                    <p className="mt-3 text-xs text-muted-foreground">
                       Last seen {lastSeenAt ? formatRelativeTime(lastSeenAt) : "never"}
                     </p>
                   </div>
@@ -686,24 +693,24 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
         icon={CheckCircle2}
       >
         {(data?.recentTaskEvents?.length ?? 0) === 0 ? (
-          <p className="text-sm text-gray-400">No task lifecycle events yet.</p>
+          <p className="text-sm text-muted-foreground">No task lifecycle events yet.</p>
         ) : (
           <div className="grid gap-3">
             {data?.recentTaskEvents.map((event) => (
-              <div key={event.id} className="rounded-[1.4rem] border border-white/10 bg-black/30 p-4">
+              <div key={event.id} className="rounded-[1.4rem] border border-border bg-background/30 p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-brand-purple/30 bg-brand-purple/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
+                  <span className="rounded-full border border-primary/30 bg-primary/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground">
                     {normalizeString(event.type)}
                   </span>
-                  <span className="text-sm font-bold text-white">{normalizeString(event.title, "Untitled task")}</span>
+                  <span className="text-sm font-semibold text-foreground">{normalizeString(event.title, "Untitled task")}</span>
                   {normalizeNumber(event.durationMs) > 0 ? (
-                    <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock3 className="h-3.5 w-3.5" />
                       {Math.round(normalizeNumber(event.durationMs) / 60000)}m
                     </span>
                   ) : null}
                 </div>
-                <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-400">
+                <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
                   <span>User: {normalizeString(event.username) || normalizeString(event.userId)}</span>
                   <span>Trigger: {TELEMETRY_EVENT_LABELS[normalizeString(event.triggerEvent)] || normalizeString(event.triggerEvent)}</span>
                   <span>Progress: {normalizeNumber(event.progress)}/{normalizeNumber(event.maxProgress, 1)}</span>
@@ -716,19 +723,19 @@ export function AdminTasksManager({ users }: { users: UserProfile[] }) {
         )}
       </TaskCard>
 
-      <div className="rounded-[1.6rem] border border-white/10 bg-[linear-gradient(135deg,rgba(178,140,255,0.12),rgba(0,0,0,0.65))] p-4">
+      <Surface className="rounded-[1.6rem] border border-border bg-card p-4">
         <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-brand-purple/25 bg-brand-purple/15 text-white">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-primary/15 text-foreground">
             <Repeat className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">Rotation rules now supported</h3>
-            <p className="mt-1 text-sm leading-5 text-gray-300">
+            <h3 className="text-base font-semibold text-foreground">Rotation rules now supported</h3>
+            <p className="mt-1 text-sm leading-5 text-muted-foreground">
               Cooldowns, lifecycle tracking, and one-time retirement now stay in one task surface.
             </p>
           </div>
         </div>
-      </div>
+      </Surface>
     </div>
   );
 }

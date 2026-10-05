@@ -1,5 +1,15 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+import { Textarea } from "@/components/ui/textarea";
+import { NativeSelectOption } from "@/components/ui/native-select";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/input";
+import { Surface } from "@/components/ui/content-layout";
+
+
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -1093,11 +1103,11 @@ export default function AdminRosterPage() {
             ]}
             sourceNotice={creatorMutationDisabled ? (
                 <div
-                    className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-6 text-zinc-200"
+                    className="rounded-2xl border border-border bg-secondary px-4 py-3 text-sm leading-6 text-foreground"
                     data-admin-roster-fixture-boundary="true"
                     data-admin-roster-fixture-state="source_missing"
                 >
-                    <span className="font-bold text-white">source_missing fixture.</span> source_missing: creator roster source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.
+                    <span className="font-semibold text-foreground">source_missing fixture.</span> source_missing: creator roster source is not loaded in this fixture. Protected reads and writes stay blocked until verified admin access provides the source.
                 </div>
             ) : null}
             beforeContent={<PageViewEvent eventName="admin_roster_viewed" eventParams={{ component_name: "admin_roster_page", roster_mode: "decision_queue", actorMarkerPresent: true, actorType: isOwner ? "owner_admin" : "admin", performedAs: "own_account" }} />}
@@ -1105,145 +1115,145 @@ export default function AdminRosterPage() {
                     <div className="min-w-0 space-y-4" data-admin-roster-primary="true" data-admin-debug-metadata={JSON.stringify(rosterDebugMetadata)}>
 
                         {tab !== "create" ? (
-                            <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
+                            <Surface className="rounded-2xl border border-border bg-card p-4">
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
-                                        <h2 className="text-lg font-black text-white">{ROSTER_DECISION_TABS.find((item) => item.key === tab)?.label}</h2>
-                                        <p className="mt-1 text-sm leading-6 text-zinc-400">
+                                        <h2 className="text-lg font-semibold text-foreground">{ROSTER_DECISION_TABS.find((item) => item.key === tab)?.label}</h2>
+                                        <p className="mt-1 text-sm leading-6 text-muted-foreground">
                                             Each row shows the next decision needed. Open a creator only when you need the full record.
                                         </p>
                                     </div>
-                                    <input
+                                    <Input
                                         value={query}
                                         onChange={(event) => setQuery(event.target.value)}
                                         placeholder="Search name or email"
-                                        className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60 sm:max-w-xs"
+                                        className="w-full rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60 sm:max-w-xs"
                                     />
                                 </div>
 
                                 {loading ? (
-                                    <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-5 text-sm text-zinc-400">Loading creator roster...</div>
+                                    <div className="mt-4 rounded-2xl border border-border bg-background/30 px-4 py-5 text-sm text-muted-foreground">Loading creator roster...</div>
                                 ) : tab === "approved" ? (
                                     <div className="mt-4 space-y-3">
                                         {visibleDecisionEntries.length === 0 && approvedLiveCreators.length === 0 ? (
-                                            <div className="rounded-2xl border border-dashed border-white/10 bg-black/30 px-4 py-5 text-sm text-zinc-400">
+                                            <div className="rounded-2xl border border-dashed border-border bg-background/30 px-4 py-5 text-sm text-muted-foreground">
                                                 {isLocalAdminUiTestSession ? "No approved creator source is loaded in local UI review." : "No approved creators match this view right now."}
                                             </div>
                                         ) : visibleDecisionEntries.map((entry) => (
-                                            <button
+                                            <Button variant="ghost"
                                                 key={entry.uid}
                                                 type="button"
                                                 onClick={() => handleOpenCreatorRecord(entry.uid)}
-                                                className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${selectedUserId === entry.uid ? "border-brand-purple/50 bg-brand-purple/10" : "border-white/10 bg-black/25 hover:border-white/20"}`}
+                                                className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${selectedUserId === entry.uid ? "border-primary/50 bg-primary/10" : "border-border bg-background/25 hover:border-border"}`}
                                             >
                                                 <div className="flex items-center justify-between gap-3">
                                                     <div className="min-w-0">
-                                                        <p className="text-base font-bold text-white">{entry.creatorDisplayName}</p>
-                                                        <p className="mt-1 truncate text-sm text-zinc-400">{formatApprovalStatus(entry.approvalStatus, entry.role)} - {entry.email}</p>
+                                                        <p className="text-base font-semibold text-foreground">{entry.creatorDisplayName}</p>
+                                                        <p className="mt-1 truncate text-sm text-muted-foreground">{formatApprovalStatus(entry.approvalStatus, entry.role)} - {entry.email}</p>
                                                     </div>
-                                                    <div className="flex shrink-0 items-center gap-2 text-sm font-semibold text-white">
+                                                    <div className="flex shrink-0 items-center gap-2 text-sm font-semibold text-foreground">
                                                         Review
-                                                        <ChevronRight className="h-4 w-4 text-brand-purple" />
+                                                        <ChevronRight className="h-4 w-4 text-primary" />
                                                     </div>
                                                 </div>
-                                            </button>
+                                            </Button>
                                         ))}
                                         {approvedLiveCreators.map((entry) => (
-                                            <button
+                                            <Button variant="ghost"
                                                 key={entry.uid}
                                                 type="button"
                                                 onClick={() => handleOpenCreatorRecord(entry.uid)}
-                                                className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${selectedUserId === entry.uid ? "border-brand-purple/50 bg-brand-purple/10" : "border-white/10 bg-black/25 hover:border-white/20"}`}
+                                                className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${selectedUserId === entry.uid ? "border-primary/50 bg-primary/10" : "border-border bg-background/25 hover:border-border"}`}
                                             >
                                                 <div className="flex items-center justify-between gap-3">
                                                     <div className="min-w-0">
-                                                        <p className="text-base font-bold text-white">{entry.displayName}</p>
-                                                        <p className="mt-1 truncate text-sm text-zinc-400">@{entry.username || "creator"} - {entry.email}</p>
+                                                        <p className="text-base font-semibold text-foreground">{entry.displayName}</p>
+                                                        <p className="mt-1 truncate text-sm text-muted-foreground">@{entry.username || "creator"} - {entry.email}</p>
                                                     </div>
-                                                    <div className="flex shrink-0 items-center gap-2 text-sm font-semibold text-white">
+                                                    <div className="flex shrink-0 items-center gap-2 text-sm font-semibold text-foreground">
                                                         Open
-                                                        <ChevronRight className="h-4 w-4 text-brand-purple" />
+                                                        <ChevronRight className="h-4 w-4 text-primary" />
                                                     </div>
                                                 </div>
-                                            </button>
+                                            </Button>
                                         ))}
                                     </div>
                                 ) : (
                                     <div className="mt-4 space-y-3">
                                         {visibleDecisionEntries.length === 0 ? (
-                                            <div className="rounded-2xl border border-dashed border-white/10 bg-black/30 px-4 py-5 text-sm text-zinc-400">
+                                            <div className="rounded-2xl border border-dashed border-border bg-background/30 px-4 py-5 text-sm text-muted-foreground">
                                                 {isLocalAdminUiTestSession ? "No creator decision queue source is loaded in local UI review." : "No creators match this decision queue right now."}
                                             </div>
                                         ) : visibleDecisionEntries.map((entry) => (
-                                            <button
+                                            <Button variant="ghost"
                                                 key={entry.uid}
                                                 type="button"
                                                 onClick={() => handleOpenCreatorRecord(entry.uid)}
-                                                className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${selectedUserId === entry.uid ? "border-brand-purple/50 bg-brand-purple/10" : "border-white/10 bg-black/25 hover:border-white/20"}`}
+                                                className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${selectedUserId === entry.uid ? "border-primary/50 bg-primary/10" : "border-border bg-background/25 hover:border-border"}`}
                                             >
                                                 <div className="flex items-center justify-between gap-3">
                                                     <div className="min-w-0">
-                                                        <p className="text-base font-bold text-white">{entry.creatorDisplayName}</p>
-                                                        <p className="mt-1 truncate text-sm text-zinc-400">{buildStage(entry)} - {entry.email}</p>
-                                                        <p className="mt-1 text-xs text-zinc-500">{countRealBlockers(entry)} review notes</p>
+                                                        <p className="text-base font-semibold text-foreground">{entry.creatorDisplayName}</p>
+                                                        <p className="mt-1 truncate text-sm text-muted-foreground">{buildStage(entry)} - {entry.email}</p>
+                                                        <p className="mt-1 text-xs text-muted-foreground">{countRealBlockers(entry)} review notes</p>
                                                         {(entry.creatorLaneWarnings ?? []).length > 0 ? (
-                                                            <p className="mt-1 text-xs font-semibold text-brand-purple">
+                                                            <p className="mt-1 text-xs font-semibold text-primary">
                                                                 {(entry.creatorLaneWarnings ?? []).slice(0, 2).join(" / ")}
                                                             </p>
                                                         ) : null}
                                                     </div>
-                                                    <div className="flex shrink-0 items-center gap-2 text-sm font-semibold text-white">
+                                                    <div className="flex shrink-0 items-center gap-2 text-sm font-semibold text-foreground">
                                                         <span>{buildPrimaryActionLabel(entry)}</span>
-                                                        <ChevronRight className="h-4 w-4 text-brand-purple" />
+                                                        <ChevronRight className="h-4 w-4 text-primary" />
                                                     </div>
                                                 </div>
-                                            </button>
+                                            </Button>
                                         ))}
                                     </div>
                                 )}
-                            </div>
+                            </Surface>
                         ) : (
-                            <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
-                                <div className="flex items-center gap-2 text-lg font-black text-white">
-                                    <PlusCircle className="h-5 w-5 text-brand-purple" />
+                            <Surface className="rounded-2xl border border-border bg-card p-4">
+                                <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                                    <PlusCircle className="h-5 w-5 text-primary" />
                                     Create
                                 </div>
-                                <p className="mt-2 text-sm leading-6 text-gray-400">
+                                <p className="mt-2 text-sm leading-6 text-muted-foreground">
                                     Direct creation supports either a draft intake shell or a live creator path with owner-controlled compliance bypass.
                                 </p>
                                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                                    <input value={createCreatorForm.displayName} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, displayName: event.target.value }))} placeholder="Name" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none" />
-                                    <input value={createCreatorForm.email} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, email: event.target.value }))} placeholder="Email" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none" />
-                                    <input value={createCreatorForm.handle} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, handle: event.target.value }))} placeholder="Handle" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none" />
-                                    <input value={createCreatorForm.platform} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, platform: event.target.value }))} placeholder="Platform" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none" />
-                                    <input value={createCreatorForm.contentType} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, contentType: event.target.value }))} placeholder="Content type" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none" />
-                                    <input value={createCreatorForm.password} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, password: event.target.value }))} placeholder="Password" type="password" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none" />
+                                    <Input value={createCreatorForm.displayName} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, displayName: event.target.value }))} placeholder="Name" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none" />
+                                    <Input value={createCreatorForm.email} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, email: event.target.value }))} placeholder="Email" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none" />
+                                    <Input value={createCreatorForm.handle} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, handle: event.target.value }))} placeholder="Handle" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none" />
+                                    <Input value={createCreatorForm.platform} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, platform: event.target.value }))} placeholder="Platform" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none" />
+                                    <Input value={createCreatorForm.contentType} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, contentType: event.target.value }))} placeholder="Content type" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none" />
+                                    <Input value={createCreatorForm.password} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, password: event.target.value }))} placeholder="Password" type="password" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none" />
                                     <label className="space-y-2">
-                                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Creator path</span>
-                                        <select value={createCreatorForm.creatorPath} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, creatorPath: event.target.value as CreateCreatorFormState["creatorPath"] }))} disabled={!isOwner} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none disabled:opacity-60">
-                                            <option value="intake">Draft intake shell</option>
-                                            {isOwner ? <option value="live_override">Live creator path</option> : null}
-                                        </select>
+                                        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Creator path</span>
+                                        <NativeSelect value={createCreatorForm.creatorPath} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, creatorPath: event.target.value as CreateCreatorFormState["creatorPath"] }))} disabled={!isOwner} className="w-full rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none disabled:opacity-60">
+                                            <NativeSelectOption value="intake">Draft intake shell</NativeSelectOption>
+                                            {isOwner ? <NativeSelectOption value="live_override">Live creator path</NativeSelectOption> : null}
+                                        </NativeSelect>
                                     </label>
                                     <label className="space-y-2">
-                                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Compliance path</span>
-                                        <select value={createCreatorForm.compliancePath} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, compliancePath: event.target.value as CreateCreatorFormState["compliancePath"] }))} disabled={!isOwner} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none disabled:opacity-60">
-                                            <option value="required">Require compliance intake</option>
-                                            {isOwner ? <option value="bypass">Bypass compliance intake</option> : null}
-                                        </select>
+                                        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Compliance path</span>
+                                        <NativeSelect value={createCreatorForm.compliancePath} onChange={(event) => setCreateCreatorForm((current) => ({ ...current, compliancePath: event.target.value as CreateCreatorFormState["compliancePath"] }))} disabled={!isOwner} className="w-full rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none disabled:opacity-60">
+                                            <NativeSelectOption value="required">Require compliance intake</NativeSelectOption>
+                                            {isOwner ? <NativeSelectOption value="bypass">Bypass compliance intake</NativeSelectOption> : null}
+                                        </NativeSelect>
                                     </label>
                                     {createCreatorForm.creatorPath === "live_override" ? (
-                                        <textarea
+                                        <Textarea
                                             value={createCreatorForm.ownerOverrideReason}
                                             onChange={(event) => setCreateCreatorForm((current) => ({ ...current, ownerOverrideReason: event.target.value }))}
                                             rows={3}
                                             placeholder="Internal owner override reason"
-                                            className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none sm:col-span-2"
+                                            className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none sm:col-span-2"
                                         />
                                     ) : null}
                                 </div>
                                 {!isOwner ? (
-                                    <p className="mt-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-xs leading-6 text-zinc-300">
+                                    <p className="mt-3 rounded-2xl border border-border bg-background/30 px-4 py-3 text-xs leading-6 text-muted-foreground">
                                         Direct creator creation is available to all admins, but live creator path and compliance bypass stay owner-only because they bypass standard onboarding locks.
                                     </p>
                                 ) : null}
@@ -1262,103 +1272,103 @@ export default function AdminRosterPage() {
                                     />
                                 ) : null}
                                 <div className="mt-4 flex justify-end">
-                                    <button type="button" onClick={() => void handleCreateCreator()} disabled={creatorMutationDisabled || creating} className="rounded-full bg-white px-5 py-3 text-sm font-bold text-black disabled:opacity-50">
+                                    <Button variant="ghost" type="button" onClick={() => void handleCreateCreator()} disabled={creatorMutationDisabled || creating} className="rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background disabled:opacity-50">
                                         {creatorMutationDisabled ? "Create needs admin" : creating ? "Creating..." : "Create account"}
-                                    </button>
+                                    </Button>
                                 </div>
-                                <details className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("agreement_templates", event.currentTarget.open)}>
-                                    <summary className="cursor-pointer list-none text-sm font-bold text-white">Agreement templates</summary>
+                                <Disclosure className="mt-4 rounded-2xl border border-border bg-background/25 p-4" onToggle={(event) => handleSectionToggle("agreement_templates", event.currentTarget.open)}>
+                                    <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">Agreement templates</DisclosureSummary>
                                     <div className="mt-4 space-y-4">
                                         <div className="grid gap-3 sm:grid-cols-2">
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Current creator agreement version</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{agreementTemplate?.agreementVersion || "No active template loaded"}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Current creator agreement version</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{agreementTemplate?.agreementVersion || "No active template loaded"}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Document title</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{agreementTemplate?.agreementTitle || DEFAULT_AGREEMENT_TEMPLATE_FORM.agreementTitle}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Document title</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{agreementTemplate?.agreementTitle || DEFAULT_AGREEMENT_TEMPLATE_FORM.agreementTitle}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Full document available</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{formatBoolean(Boolean(agreementTemplate?.fullDocumentAvailable))}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Full document available</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{formatBoolean(Boolean(agreementTemplate?.fullDocumentAvailable))}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Agreement hash available</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{formatBoolean(Boolean(agreementTemplate?.agreementHashAvailable))}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Agreement hash available</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{formatBoolean(Boolean(agreementTemplate?.agreementHashAvailable))}</p>
                                             </div>
                                         </div>
                                         <div className="grid gap-3 sm:grid-cols-2">
-                                            <input value={agreementTemplateForm.agreementVersion} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, agreementVersion: event.target.value }))} placeholder="Agreement version" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60" />
-                                            <input value={agreementTemplateForm.agreementTitle} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, agreementTitle: event.target.value }))} placeholder="Document title" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60" />
+                                            <Input value={agreementTemplateForm.agreementVersion} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, agreementVersion: event.target.value }))} placeholder="Agreement version" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60" />
+                                            <Input value={agreementTemplateForm.agreementTitle} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, agreementTitle: event.target.value }))} placeholder="Document title" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60" />
                                             <label className="space-y-2">
-                                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Agreement source</span>
-                                                <select value={agreementTemplateForm.agreementSource} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, agreementSource: event.target.value as CreatorAgreementSource }))} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60">
-                                                    <option value="native_full_text">Native full text</option>
-                                                    <option value="uploaded_pdf_snapshot">Uploaded PDF</option>
-                                                    <option value="hybrid">Uploaded source plus app summary</option>
-                                                </select>
+                                                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Agreement source</span>
+                                                <NativeSelect value={agreementTemplateForm.agreementSource} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, agreementSource: event.target.value as CreatorAgreementSource }))} className="w-full rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60">
+                                                    <NativeSelectOption value="native_full_text">Native full text</NativeSelectOption>
+                                                    <NativeSelectOption value="uploaded_pdf_snapshot">Uploaded PDF</NativeSelectOption>
+                                                    <NativeSelectOption value="hybrid">Uploaded source plus app summary</NativeSelectOption>
+                                                </NativeSelect>
                                             </label>
-                                            <input value={agreementTemplateForm.supersedesVersion} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, supersedesVersion: event.target.value }))} placeholder="Supersedes version" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60" />
+                                            <Input value={agreementTemplateForm.supersedesVersion} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, supersedesVersion: event.target.value }))} placeholder="Supersedes version" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60" />
                                             <label className="space-y-2 sm:col-span-2">
-                                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Upload or replace agreement source</span>
-                                                <input type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={(event) => setAgreementTemplateFile(event.target.files?.[0] ?? null)} className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white file:mr-3 file:rounded-full file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-black" />
+                                                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Upload or replace agreement source</span>
+                                                <input type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={(event) => setAgreementTemplateFile(event.target.files?.[0] ?? null)} className="w-full rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground file:mr-3 file:rounded-full file:border-0 file:bg-foreground file:px-3 file:py-2 file:text-sm file:font-semibold file:text-background" />
                                             </label>
-                                            <textarea value={agreementTemplateForm.summaryBullets} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, summaryBullets: event.target.value }))} rows={4} placeholder="Summary bullets, one per line" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60 sm:col-span-2" />
+                                            <Textarea value={agreementTemplateForm.summaryBullets} onChange={(event) => setAgreementTemplateForm((current) => ({ ...current, summaryBullets: event.target.value }))} rows={4} placeholder="Summary bullets, one per line" className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60 sm:col-span-2" />
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <button type="button" onClick={() => void handleAgreementTemplateSubmit("create_template")} disabled={creatorMutationDisabled || agreementSaving === "create_template"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Save template source</button>
-                                            <button type="button" onClick={() => void handleAgreementTemplateSubmit("activate_template")} disabled={creatorMutationDisabled || !isOwner || agreementSaving === "activate_template"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Mark as active for new creators</button>
+                                            <Button variant="ghost" type="button" onClick={() => void handleAgreementTemplateSubmit("create_template")} disabled={creatorMutationDisabled || agreementSaving === "create_template"} className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50">Save template source</Button>
+                                            <Button variant="ghost" type="button" onClick={() => void handleAgreementTemplateSubmit("activate_template")} disabled={creatorMutationDisabled || !isOwner || agreementSaving === "activate_template"} className="rounded-full border border-primary/40 bg-primary/15 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50">Mark as active for new creators</Button>
                                         </div>
                                         {!isOwner ? (
-                                            <p className="text-xs leading-5 text-zinc-500">Only the primary owner can activate a template for new creators.</p>
+                                            <p className="text-xs leading-5 text-muted-foreground">Only the primary owner can activate a template for new creators.</p>
                                         ) : null}
-                                        <details className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                            <summary className="cursor-pointer list-none text-sm font-semibold text-white">Preview active agreement</summary>
-                                            <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-300">
+                                        <Disclosure className="rounded-2xl border border-border bg-background/20 p-3">
+                                            <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">Preview active agreement</DisclosureSummary>
+                                            <div className="mt-3 space-y-3 text-sm leading-6 text-muted-foreground">
                                                 {CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.map((section) => (
                                                     <div key={section.heading}>
-                                                        <p className="font-semibold text-white">{section.heading}</p>
+                                                        <p className="font-semibold text-foreground">{section.heading}</p>
                                                         <p className="mt-1">{section.body}</p>
                                                     </div>
                                                 ))}
                                             </div>
-                                        </details>
+                                        </Disclosure>
                                     </div>
-                                </details>
-                            </div>
+                                </Disclosure>
+                            </Surface>
                         )}
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-zinc-950/80 p-4">
+                    <Surface className="rounded-2xl border border-border bg-card p-4">
                         {!selectedUserId ? (
-                            <div className="flex h-full min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-black/25 px-6 text-center text-sm leading-7 text-zinc-400">
+                            <div className="flex h-full min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-border bg-background/25 px-6 text-center text-sm leading-7 text-muted-foreground">
                                 Select a creator to review their next step, agreement status, ID status, and audit trail.
                             </div>
                         ) : detailLoading ? (
-                            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-white/10 bg-black/25 px-6 text-sm text-zinc-400">
+                            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-border bg-background/25 px-6 text-sm text-muted-foreground">
                                 Loading creator record...
                             </div>
                         ) : !selectedCanonical ? (
-                            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-white/10 bg-black/25 px-6 text-sm text-zinc-400">
+                            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-border bg-background/25 px-6 text-sm text-muted-foreground">
                                 Creator detail is unavailable for this account.
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                <div className="rounded-2xl border border-brand-purple/25 bg-brand-purple/10 p-4">
+                                <div className="rounded-2xl border border-primary/25 bg-primary/10 p-4">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                         <div>
-                                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple">Review step</p>
-                                            <h2 className="mt-2 text-2xl font-black text-white">{selectedCanonical.creatorDisplayName}</h2>
-                                            <p className="mt-2 text-sm leading-6 text-zinc-200">{getCreatorOnboardingStatusSummary(selectedCanonical).summary}</p>
-                                            <p className="mt-2 text-sm font-semibold text-white">{selectedPrimaryAction}</p>
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">Review step</p>
+                                            <h2 className="mt-2 text-2xl font-semibold text-foreground">{selectedCanonical.creatorDisplayName}</h2>
+                                            <p className="mt-2 text-sm leading-6 text-foreground">{getCreatorOnboardingStatusSummary(selectedCanonical).summary}</p>
+                                            <p className="mt-2 text-sm font-semibold text-foreground">{selectedPrimaryAction}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {selectedReviewHref ? (
-                                                <Link href={selectedReviewHref} className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white">
+                                                <Link href={selectedReviewHref} className="rounded-full border border-border bg-background/25 px-4 py-2 text-sm font-semibold text-foreground">
                                                     Focus link
                                                 </Link>
                                             ) : null}
                                             {selectedAdminHref ? (
-                                                <Link href={selectedAdminHref} className="rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm font-semibold text-white">
+                                                <Link href={selectedAdminHref} className="rounded-full border border-border bg-background/25 px-4 py-2 text-sm font-semibold text-foreground">
                                                     Open user record
                                                 </Link>
                                             ) : null}
@@ -1372,54 +1382,54 @@ export default function AdminRosterPage() {
                                     </div>
                                     <div className="mt-4 flex flex-wrap gap-3">
                                         {!selectedCanonical.introAcknowledgedAt ? (
-                                            <p className="text-sm text-zinc-300">Creator still needs to acknowledge the intro before review can move forward.</p>
+                                            <p className="text-sm text-muted-foreground">Creator still needs to acknowledge the intro before review can move forward.</p>
                                         ) : null}
                                         {(selectedCanonical.idVerificationStatus === "id_not_requested" || selectedCanonical.idVerificationStatus === "id_rejected") ? (
-                                            <button type="button" onClick={() => handlePrimaryActionClick("request_id", { kycDueAt: Date.now() + (7 * 24 * 60 * 60 * 1000) }, "request-id")} disabled={creatorMutationDisabled || saving === "request-id"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Request ID upload</button>
+                                            <Button variant="ghost" type="button" onClick={() => handlePrimaryActionClick("request_id", { kycDueAt: Date.now() + (7 * 24 * 60 * 60 * 1000) }, "request-id")} disabled={creatorMutationDisabled || saving === "request-id"} className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50">Request ID upload</Button>
                                         ) : null}
                                         {selectedCanonical.contractDocumentStatus !== "contract_sent" && selectedCanonical.introAcknowledgedAt ? (
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
+                                            <Button variant="ghost" type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_agreement"} className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50">Send agreement</Button>
                                         ) : null}
                                         {selectedCanonical.creatorSignatureStatus === "signature_signed" && selectedCanonical.adminSignatureStatus !== "signature_signed" ? (
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={creatorMutationDisabled || agreementSaving === "countersign_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Countersign agreement</button>
+                                            <Button variant="ghost" type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={creatorMutationDisabled || agreementSaving === "countersign_agreement"} className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50">Countersign agreement</Button>
                                         ) : null}
                                         {(selectedCanonical.readyForApproval || selectedCanonical.ownerOverrideActive) ? (
-                                            <button type="button" onClick={() => handlePrimaryActionClick("approve_creator", {}, "approve")} disabled={creatorMutationDisabled || saving === "approve"} className="rounded-full bg-brand-purple px-4 py-2 text-sm font-bold text-white disabled:opacity-50">Approve creator</button>
+                                            <Button variant="ghost" type="button" onClick={() => handlePrimaryActionClick("approve_creator", {}, "approve")} disabled={creatorMutationDisabled || saving === "approve"} className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50">Approve creator</Button>
                                         ) : null}
-                                        <button type="button" onClick={() => void submitCreatorAction("request_changes", {}, "return")} disabled={creatorMutationDisabled || saving === "return"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Return for changes</button>
-                                        <button type="button" onClick={() => void submitCreatorAction("reject_creator", {}, "reject")} disabled={creatorMutationDisabled || saving === "reject"} className="rounded-full border border-white/10 bg-zinc-950 px-4 py-2 text-sm font-semibold text-zinc-200 disabled:opacity-50">Reject application</button>
+                                        <Button variant="ghost" type="button" onClick={() => void submitCreatorAction("request_changes", {}, "return")} disabled={creatorMutationDisabled || saving === "return"} className="rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50">Return for changes</Button>
+                                        <Button variant="ghost" type="button" onClick={() => void submitCreatorAction("reject_creator", {}, "reject")} disabled={creatorMutationDisabled || saving === "reject"} className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50">Reject application</Button>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
-                                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Intake</p>
-                                        <p className="mt-2 text-sm font-bold text-white">{formatIntakeStatus(selectedCanonical)}</p>
+                                    <div className="rounded-2xl border border-border bg-background/25 p-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Intake</p>
+                                        <p className="mt-2 text-sm font-semibold text-foreground">{formatIntakeStatus(selectedCanonical)}</p>
                                     </div>
-                                    <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
-                                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Agreement</p>
-                                        <p className="mt-2 text-sm font-bold text-white">{formatAgreementStatus(selectedCanonical)}</p>
+                                    <div className="rounded-2xl border border-border bg-background/25 p-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Agreement</p>
+                                        <p className="mt-2 text-sm font-semibold text-foreground">{formatAgreementStatus(selectedCanonical)}</p>
                                     </div>
-                                    <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
-                                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">ID</p>
-                                        <p className="mt-2 text-sm font-bold text-white">{formatIdStatus(selectedCanonical.idVerificationStatus)}</p>
+                                    <div className="rounded-2xl border border-border bg-background/25 p-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">ID</p>
+                                        <p className="mt-2 text-sm font-semibold text-foreground">{formatIdStatus(selectedCanonical.idVerificationStatus)}</p>
                                     </div>
-                                    <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
-                                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Approval</p>
-                                        <p className="mt-2 text-sm font-bold text-white">{formatApprovalStatus(selectedCanonical.approvalStatus, selectedCanonical.role)}</p>
+                                    <div className="rounded-2xl border border-border bg-background/25 p-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Approval</p>
+                                        <p className="mt-2 text-sm font-semibold text-foreground">{formatApprovalStatus(selectedCanonical.approvalStatus, selectedCanonical.role)}</p>
                                     </div>
                                 </div>
 
                                 {selectedCanonical.isSyntheticCreator ? (
-                                    <div className="rounded-2xl border border-brand-purple/25 bg-brand-purple/10 p-3 text-sm leading-6 text-zinc-200">
-                                        <p className="font-bold text-white">Synthetic creator</p>
+                                    <div className="rounded-2xl border border-primary/25 bg-primary/10 p-3 text-sm leading-6 text-foreground">
+                                        <p className="font-semibold text-foreground">Synthetic creator</p>
                                         <p className="mt-1">Internal QA and creator experience actions require an admin operator.</p>
                                     </div>
                                 ) : null}
 
                                 {selectedCreatorLaneWarnings.length > 0 ? (
-                                    <div className="rounded-2xl border border-brand-purple/25 bg-black/25 p-3 text-sm leading-6 text-zinc-200">
-                                        <p className="font-bold text-white">Needs review</p>
+                                    <div className="rounded-2xl border border-primary/25 bg-background/25 p-3 text-sm leading-6 text-foreground">
+                                        <p className="font-semibold text-foreground">Needs review</p>
                                         <div className="mt-2 space-y-1">
                                             {selectedCreatorLaneWarnings.map((warning) => (
                                                 <p key={warning}>{warning}</p>
@@ -1429,13 +1439,13 @@ export default function AdminRosterPage() {
                                 ) : null}
 
                                 {selectedAccountTarget && creatorMutationDisabled ? (
-                                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-zinc-200">
+                                    <div className="rounded-2xl border border-border bg-secondary p-3 text-sm leading-6 text-foreground">
                                         permission_blocked: account controls require verified admin access.
                                     </div>
                                 ) : selectedAccountTarget ? (
-                                    <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("account_controls", event.currentTarget.open)}>
-                                        <summary className="cursor-pointer list-none text-sm font-bold text-white">Account controls</summary>
-                                        <p className="mt-2 text-sm leading-6 text-zinc-400">
+                                    <Disclosure className="rounded-2xl border border-border bg-background/25 p-4" onToggle={(event) => handleSectionToggle("account_controls", event.currentTarget.open)}>
+                                        <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">Account controls</DisclosureSummary>
+                                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
                                             Update profile, access, and notification settings. Login and role changes require confirmation and stay in the audit trail.
                                         </p>
                                         <CreatorAccountControlsPanel
@@ -1445,17 +1455,17 @@ export default function AdminRosterPage() {
                                             onSubmit={handleAccountControlSubmit}
                                             onApprovalStatusChange={handleAccountApprovalStatusChange}
                                         />
-                                    </details>
+                                    </Disclosure>
                                 ) : null}
 
                                 {selectedFanExperienceTarget && creatorMutationDisabled ? (
-                                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm leading-6 text-zinc-200">
+                                    <div className="rounded-2xl border border-border bg-secondary p-3 text-sm leading-6 text-foreground">
                                         permission_blocked: fan-experience settings require verified admin access.
                                     </div>
                                 ) : selectedFanExperienceTarget ? (
-                                    <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("fan_experience_settings", event.currentTarget.open)}>
-                                        <summary className="cursor-pointer list-none text-sm font-bold text-white">Fan experience settings</summary>
-                                        <p className="mt-2 text-sm leading-6 text-zinc-400">
+                                    <Disclosure className="rounded-2xl border border-border bg-background/25 p-4" onToggle={(event) => handleSectionToggle("fan_experience_settings", event.currentTarget.open)}>
+                                        <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">Fan experience settings</DisclosureSummary>
+                                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
                                             Update Fan Pass, private chat, custom requests, live time, and creator restrictions. Pricing and pauses are validated before saving.
                                         </p>
                                         <CreatorFanExperienceSettingsPanel
@@ -1463,81 +1473,81 @@ export default function AdminRosterPage() {
                                             saving={fanExperienceSaving}
                                             onSubmit={handleFanExperienceSettingsSubmit}
                                         />
-                                    </details>
+                                    </Disclosure>
                                 ) : null}
 
-                                <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("agreement_document", event.currentTarget.open)}>
-                                    <summary className="cursor-pointer list-none text-sm font-bold text-white">Agreement document</summary>
+                                <Disclosure className="rounded-2xl border border-border bg-background/25 p-4" onToggle={(event) => handleSectionToggle("agreement_document", event.currentTarget.open)}>
+                                    <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">Agreement document</DisclosureSummary>
                                     <div className="mt-4 space-y-4">
                                         <div className="grid gap-3 sm:grid-cols-2">
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Current agreement version</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{selectedAgreementVersion || "Not set"}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Current agreement version</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{selectedAgreementVersion || "Not set"}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Document title</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{selectedAgreementTitle}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Document title</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{selectedAgreementTitle}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Last sent</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{formatTimestamp(selectedCanonical.legalDocumentSentAt)}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Last sent</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{formatTimestamp(selectedCanonical.legalDocumentSentAt)}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Creator signature</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{deriveCreatorVisibleStatus(selectedCanonical).visibleStatusLabels.creatorSignatureStatus}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Creator signature</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{deriveCreatorVisibleStatus(selectedCanonical).visibleStatusLabels.creatorSignatureStatus}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Admin countersign</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{deriveCreatorVisibleStatus(selectedCanonical).visibleStatusLabels.adminSignatureStatus}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Admin countersign</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{deriveCreatorVisibleStatus(selectedCanonical).visibleStatusLabels.adminSignatureStatus}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Full document available</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{formatBoolean(Boolean(selectedCanonical.legalDocumentUrl || agreementTemplate?.fullDocumentAvailable || CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.length > 0))}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Full document available</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{formatBoolean(Boolean(selectedCanonical.legalDocumentUrl || agreementTemplate?.fullDocumentAvailable || CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.length > 0))}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Agreement hash available</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{formatBoolean(Boolean(selectedAgreementHash || agreementTemplate?.agreementHashAvailable))}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Agreement hash available</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{formatBoolean(Boolean(selectedAgreementHash || agreementTemplate?.agreementHashAvailable))}</p>
                                             </div>
-                                            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Source</p>
-                                                <p className="mt-2 text-sm font-semibold text-white">{formatAgreementSource(selectedAgreementSource)}</p>
+                                            <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Source</p>
+                                                <p className="mt-2 text-sm font-semibold text-foreground">{formatAgreementSource(selectedAgreementSource)}</p>
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {(selectedCanonical.legalDocumentUrl || agreementTemplate?.agreementSource === "uploaded_pdf_snapshot" || agreementTemplate?.agreementSource === "hybrid") ? (
-                                                <button type="button" onClick={handleViewAgreement} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white">Open agreement source</button>
+                                                <Button variant="ghost" type="button" onClick={handleViewAgreement} className="rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground">Open agreement source</Button>
                                             ) : null}
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_agreement"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Send agreement</button>
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("send_updated_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_updated_agreement"} className="rounded-full border border-brand-purple/40 bg-brand-purple/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Send updated agreement</button>
-                                            <button type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={creatorMutationDisabled || agreementSaving === "countersign_agreement" || selectedCanonical.creatorSignatureStatus !== "signature_signed"} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Countersign agreement</button>
+                                            <Button variant="ghost" type="button" onClick={() => void handleCreatorAgreementAction("send_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_agreement"} className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50">Send agreement</Button>
+                                            <Button variant="ghost" type="button" onClick={() => void handleCreatorAgreementAction("send_updated_agreement")} disabled={creatorMutationDisabled || agreementSaving === "send_updated_agreement"} className="rounded-full border border-primary/40 bg-primary/15 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50">Send updated agreement</Button>
+                                            <Button variant="ghost" type="button" onClick={() => void handleCreatorAgreementAction("countersign_agreement")} disabled={creatorMutationDisabled || agreementSaving === "countersign_agreement" || selectedCanonical.creatorSignatureStatus !== "signature_signed"} className="rounded-full border border-border bg-background/35 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50">Countersign agreement</Button>
                                         </div>
-                                        <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                            <p className="text-sm font-semibold text-white">Plain-language agreement summary</p>
-                                            <div className="mt-3 space-y-2 text-sm leading-6 text-zinc-300">
+                                        <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                            <p className="text-sm font-semibold text-foreground">Plain-language agreement summary</p>
+                                            <div className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
                                                 {(agreementTemplate?.summaryBullets?.length ? agreementTemplate.summaryBullets : CREATOR_CONTRACT_SUMMARY_BULLETS).map((bullet) => <p key={bullet}>- {bullet}</p>)}
                                             </div>
                                         </div>
-                                        <details className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                            <summary className="cursor-pointer list-none text-sm font-semibold text-white">View full native agreement</summary>
-                                            <div className="mt-3 space-y-3 text-sm leading-6 text-zinc-300">
+                                        <Disclosure className="rounded-2xl border border-border bg-background/20 p-3">
+                                            <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">View full native agreement</DisclosureSummary>
+                                            <div className="mt-3 space-y-3 text-sm leading-6 text-muted-foreground">
                                                 {CREATOR_MASTER_SERVICE_AGREEMENT_SECTIONS.map((section) => (
                                                     <div key={section.heading}>
-                                                        <p className="font-semibold text-white">{section.heading}</p>
+                                                        <p className="font-semibold text-foreground">{section.heading}</p>
                                                         <p className="mt-1">{section.body}</p>
                                                     </div>
                                                 ))}
                                             </div>
-                                        </details>
+                                        </Disclosure>
                                     </div>
-                                </details>
+                                </Disclosure>
 
-                                <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("id_files", event.currentTarget.open)}>
-                                    <summary className="cursor-pointer list-none text-sm font-bold text-white">ID files</summary>
+                                <Disclosure className="rounded-2xl border border-border bg-background/25 p-4" onToggle={(event) => handleSectionToggle("id_files", event.currentTarget.open)}>
+                                    <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">ID files</DisclosureSummary>
                                     <div className="mt-4 space-y-4">
-                                        <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">KYC due</p>
-                                            <p className="mt-2 text-sm font-semibold text-white">{formatTimestamp(selectedCanonical.kycDueAt)}</p>
-                                            <p className="mt-1 text-xs text-zinc-500">{selectedEntry?.idDocumentCount ?? 0} of 4 files uploaded.</p>
+                                        <div className="rounded-2xl border border-border bg-background/20 p-3">
+                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">KYC due</p>
+                                            <p className="mt-2 text-sm font-semibold text-foreground">{formatTimestamp(selectedCanonical.kycDueAt)}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">{selectedEntry?.idDocumentCount ?? 0} of 4 files uploaded.</p>
                                         </div>
                                         <div className="grid gap-3 sm:grid-cols-2">
                                             {[
@@ -1546,11 +1556,11 @@ export default function AdminRosterPage() {
                                                 { label: "Face with ID", side: "face_with_id", fileName: selectedEntry?.idDocumentFaceFileName },
                                                 { label: "Video with ID", side: "video_with_id", fileName: selectedEntry?.idDocumentVideoFileName },
                                             ].map((document) => (
-                                                <div key={document.side} className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                                                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">{document.label}</p>
-                                                    <p className="mt-2 text-sm font-semibold text-white">{document.fileName || "Not uploaded"}</p>
+                                                <div key={document.side} className="rounded-2xl border border-border bg-background/20 p-3">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{document.label}</p>
+                                                    <p className="mt-2 text-sm font-semibold text-foreground">{document.fileName || "Not uploaded"}</p>
                                                     {document.fileName ? (
-                                                        <a href={`/api/admin/user/${selectedUserId}/creator-onboarding/id-document?side=${document.side}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-semibold text-brand-purple">
+                                                        <a href={`/api/admin/user/${selectedUserId}/creator-onboarding/id-document?side=${document.side}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-semibold text-primary">
                                                             Open file
                                                         </a>
                                                     ) : null}
@@ -1558,50 +1568,50 @@ export default function AdminRosterPage() {
                                             ))}
                                         </div>
                                     </div>
-                                </details>
+                                </Disclosure>
 
-                                <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("audit_trail", event.currentTarget.open)}>
-                                    <summary className="cursor-pointer list-none text-sm font-bold text-white">Audit trail</summary>
+                                <Disclosure className="rounded-2xl border border-border bg-background/25 p-4" onToggle={(event) => handleSectionToggle("audit_trail", event.currentTarget.open)}>
+                                    <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">Audit trail</DisclosureSummary>
                                     <CreatorAuditTrailPanel history={selectedHistory} onEventExpanded={handleAuditEventExpanded} />
-                                </details>
+                                </Disclosure>
 
-                                <details className="rounded-2xl border border-white/10 bg-black/25 p-4" onToggle={(event) => handleSectionToggle("admin_notes", event.currentTarget.open)}>
-                                    <summary className="cursor-pointer list-none text-sm font-bold text-white">Admin notes</summary>
-                                    <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-zinc-300">
+                                <Disclosure className="rounded-2xl border border-border bg-background/25 p-4" onToggle={(event) => handleSectionToggle("admin_notes", event.currentTarget.open)}>
+                                    <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">Admin notes</DisclosureSummary>
+                                    <div className="mt-4 rounded-2xl border border-border bg-background/20 p-3 text-sm leading-6 text-muted-foreground">
                                         {selectedCanonical.adminNotes || "No admin notes recorded."}
                                     </div>
                                     {selectedCanonical.blockingReasons.length > 0 ? (
-                                        <div className="mt-3 space-y-2 text-sm text-zinc-300">
+                                        <div className="mt-3 space-y-2 text-sm text-muted-foreground">
                                             {selectedCanonical.blockingReasons.map((reason) => {
                                                 const detailReason = describeCreatorOnboardingBlockingReason(reason);
                                                 return <p key={reason}>- {detailReason.label}</p>;
                                             })}
                                         </div>
                                     ) : null}
-                                </details>
+                                </Disclosure>
 
                                 {isOwner ? (
-                                    <details className="rounded-2xl border border-brand-purple/25 bg-brand-purple/10 p-4" onToggle={(event) => handleSectionToggle("owner_controls", event.currentTarget.open)}>
-                                        <summary className="cursor-pointer list-none text-sm font-bold text-white">Owner controls</summary>
-                                        <p className="mt-3 text-sm leading-6 text-zinc-200">
+                                    <Disclosure className="rounded-2xl border border-primary/25 bg-primary/10 p-4" onToggle={(event) => handleSectionToggle("owner_controls", event.currentTarget.open)}>
+                                        <DisclosureSummary className="cursor-pointer list-none text-sm font-semibold text-foreground">Owner controls</DisclosureSummary>
+                                        <p className="mt-3 text-sm leading-6 text-foreground">
                                             Owner override can bypass KYC, legal, approval, and role-activation locks. The reason stays internal and still writes to the audit trail.
                                         </p>
-                                        <textarea
+                                        <Textarea
                                             value={ownerOverrideReason}
                                             onChange={(event) => setOwnerOverrideReason(event.target.value)}
                                             rows={3}
                                             placeholder="Internal override reason"
-                                            className="mt-3 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-brand-purple/60"
+                                            className="mt-3 w-full rounded-2xl border border-border bg-background/30 px-4 py-3 text-sm text-foreground outline-none focus:border-primary/60"
                                         />
                                         <div className="mt-3 flex flex-wrap gap-3">
-                                            <button type="button" onClick={() => void submitCreatorAction("apply_owner_override", { reason: ownerOverrideReason }, "owner-override-on")} disabled={creatorMutationDisabled || saving === "owner-override-on"} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black disabled:opacity-50">Apply owner override</button>
-                                            <button type="button" onClick={() => void submitCreatorAction("clear_owner_override", {}, "owner-override-off")} disabled={creatorMutationDisabled || saving === "owner-override-off"} className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Clear override</button>
+                                            <Button variant="ghost" type="button" onClick={() => void submitCreatorAction("apply_owner_override", { reason: ownerOverrideReason }, "owner-override-on")} disabled={creatorMutationDisabled || saving === "owner-override-on"} className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-50">Apply owner override</Button>
+                                            <Button variant="ghost" type="button" onClick={() => void submitCreatorAction("clear_owner_override", {}, "owner-override-off")} disabled={creatorMutationDisabled || saving === "owner-override-off"} className="rounded-full border border-border bg-background/30 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-50">Clear override</Button>
                                         </div>
-                                    </details>
+                                    </Disclosure>
                                 ) : null}
                             </div>
                         )}
-                    </div>
+                    </Surface>
         </AdminRosterWorkspace>
     );
 }

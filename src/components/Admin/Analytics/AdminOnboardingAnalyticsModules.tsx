@@ -1,5 +1,9 @@
 "use client";
 
+import { DataTable } from "@/components/ui/data-table";
+import { TableScrollArea } from "@/components/ui/data-table";
+
+
 import { useEffect, useState, type ReactNode } from "react";
 import { CheckCircle2, Clock3, PlayCircle, Sparkles } from "lucide-react";
 
@@ -41,9 +45,9 @@ function OnboardingDiscrepancyCallout({
     }
 
     return (
-        <div className="flex flex-col gap-1.5 rounded-[1rem] border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-50 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-1.5 rounded-[1rem] border border-warning/20 bg-warning/10 px-3 py-2 text-xs leading-5 text-warning md:flex-row md:items-center md:justify-between">
             <span className="min-w-0">{model.discrepancySummary}</span>
-            <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.12em] text-amber-100/80">
+            <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-warning/80">
                 Details in Debug
             </span>
         </div>
@@ -235,7 +239,7 @@ export function AdminOnboardingAnalyticsModules(props: {
                         {props.onboardingVelocityHasData ? (
                             <div>
                                 <div className="mb-2 flex items-center justify-between gap-2">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                         Completion time
                                     </p>
                                     <span className="text-xs text-muted-foreground">
@@ -245,9 +249,9 @@ export function AdminOnboardingAnalyticsModules(props: {
                                 <div className="grid grid-cols-5 items-end gap-1.5">
                                     {model.durationBucketCounts.map((bucket) => (
                                         <div key={bucket.label} className="min-w-0">
-                                            <div className="flex h-12 items-end rounded-md bg-white/5 px-1">
+                                            <div className="flex h-12 items-end rounded-md bg-secondary px-1">
                                                 <div
-                                                    className="w-full rounded-t bg-brand-purple"
+                                                    className="w-full rounded-t bg-primary"
                                                     style={{
                                                         height: `${Math.max(8, (bucket.count / maxBucket) * 100)}%`,
                                                     }}
@@ -267,16 +271,16 @@ export function AdminOnboardingAnalyticsModules(props: {
                         )}
 
                         <div className="space-y-1.5">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 Step flow
                             </p>
                             {model.perStep.map((step) => (
                                 <div key={step.stepKey} className="grid grid-cols-[minmax(0,1fr)_3rem] items-center gap-2 text-xs">
                                     <span className="truncate text-muted-foreground">{step.stepTitle}</span>
                                     <span className="text-right font-semibold text-foreground">{props.formatPercent(step.completionRate)}</span>
-                                    <div className="col-span-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                                    <div className="col-span-2 h-1.5 overflow-hidden rounded-full bg-secondary">
                                         <div
-                                            className="h-full rounded-full bg-brand-purple"
+                                            className="h-full rounded-full bg-primary"
                                             style={{ width: `${Math.max(5, Math.min(100, step.completionRate * 100))}%` }}
                                         />
                                     </div>
@@ -287,15 +291,15 @@ export function AdminOnboardingAnalyticsModules(props: {
                 ) : null}
 
                 {onboardingPerformanceViewMode === "table" ? (
-                    <div
+                    <TableScrollArea
                         className="rounded-2xl bg-card overflow-x-auto"
                         data-onboarding-performance-table="compact"
                         data-onboarding-performance-truth-state={model.truthState}
                         data-onboarding-performance-discrepancy={String(model.discrepancyDetected)}
                         data-onboarding-performance-timing-missing={String(model.timingMissing)}
                     >
-                        <table className="min-w-full text-left text-xs">
-                            <thead className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                        <DataTable className="min-w-full text-left text-xs">
+                            <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                                 <tr>
                                     <th className="px-3 py-2 font-semibold">Step</th>
                                     <th className="px-3 py-2 font-semibold">Starts</th>
@@ -305,7 +309,7 @@ export function AdminOnboardingAnalyticsModules(props: {
                                     <th className="px-3 py-2 font-semibold">Rate</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/10 text-muted-foreground">
+                            <tbody className="divide-y divide-border text-muted-foreground">
                                 {model.perStep.map((step) => (
                                     <tr key={step.stepKey} data-onboarding-step-key={step.stepKey}>
                                         <td className="max-w-[15rem] px-3 py-2">
@@ -320,8 +324,8 @@ export function AdminOnboardingAnalyticsModules(props: {
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
-                    </div>
+                        </DataTable>
+                    </TableScrollArea>
                 ) : null}
             </div>
         </SectionCard>

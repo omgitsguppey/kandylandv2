@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import dynamic from "next/dynamic";
 import { useEffect, useMemo } from "react";
 import {
@@ -643,7 +647,7 @@ export default function AdminAnalyticsPage() {
       <AdminAnalyticsEvidenceCanvas
         fixture={state.isLocalAdminUiTestSession ? (
         <div
-          className="border-l-2 border-amber-400 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+          className="border-l-2 border-warning bg-warning/10 px-3 py-2 text-xs text-warning"
           data-admin-analytics-fixture-boundary="true"
           data-admin-analytics-fixture-state="source_missing"
         >
@@ -683,14 +687,14 @@ export default function AdminAnalyticsPage() {
           <p className="min-w-0 wrap-anywhere text-muted-foreground">{sourceQualitySummary.join(" - ")}</p>
         </div>
         {sourceDetailItems.length > 0 || showPanelRecovery ? (
-          <details
+          <Disclosure
             className="min-w-0 border-t border-border text-sm text-muted-foreground"
             data-admin-analytics-source-recovery="compact"
             title={sourceDetailItems.length > 0 ? sourceDetailItems.join(" | ") : undefined}
           >
-            <summary className="min-h-11 cursor-pointer content-center py-3 font-medium text-foreground">
+            <DisclosureSummary className="min-h-11 cursor-pointer content-center py-3 font-medium text-foreground">
               <span className="wrap-anywhere">Source and recovery details</span>
-            </summary>
+            </DisclosureSummary>
             <div className="min-w-0 space-y-4 pb-3 text-sm leading-6 text-muted-foreground">
               {sourceRecoverySummary ? <p className="min-w-0 wrap-anywhere">{sourceRecoverySummary}</p> : null}
               {sourceDetailItems.length > 0 ? (
@@ -733,7 +737,7 @@ export default function AdminAnalyticsPage() {
                 </div>
               ) : null}
             </div>
-          </details>
+          </Disclosure>
         ) : null}
           </div>
         )}
@@ -746,7 +750,7 @@ export default function AdminAnalyticsPage() {
         filters={(
           <div className="flex flex-wrap items-end justify-between gap-3" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
             <label className="min-w-0 w-full sm:max-w-xs">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-purple-200">Evidence lens</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-primary">Evidence lens</span>
               <NativeSelect
                 value={activeTab}
                 onChange={(event) => setActiveTab(event.target.value as typeof activeTab)}
@@ -766,17 +770,17 @@ export default function AdminAnalyticsPage() {
         alerts={(
           <>
             {primaryBlockingAnalyticsError && (
-        <div className="border-l-2 border-red-400 bg-red-500/10 px-4 py-4">
-          <p className="text-sm font-medium text-red-300">
+        <div className="border-l-2 border-destructive bg-destructive/10 px-4 py-4">
+          <p className="text-sm font-medium text-destructive">
             {formatAdminAnalyticsSourceNote(primaryBlockingAnalyticsError.message || "Analytics request failed.")}
           </p>
         </div>
             )}
             {backgroundAnalyticsIssues.length > 0 && !primaryBlockingAnalyticsError && sourceStatusItems.length === 0 && visibleOverviewDegradedCopy.length > 0 ? (
-        <div className="flex items-start gap-2 border-l-2 border-amber-400 bg-amber-500/10 px-3 py-2">
-          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+        <div className="flex items-start gap-2 border-l-2 border-warning bg-warning/10 px-3 py-2">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning" />
             <div
-              className="min-w-0 space-y-0.5 text-xs text-amber-200"
+              className="min-w-0 space-y-0.5 text-xs text-warning"
               title={visibleOverviewDegradedCopy.join(" | ")}
             >
             <p>
@@ -788,7 +792,7 @@ export default function AdminAnalyticsPage() {
         </div>
             ) : null}
             {showHistoricalEmptyState && sourceStatusItems.length === 0 ? (
-        <div className="border-l-2 border-white/15 bg-white/[0.03] px-4 py-4">
+        <div className="border-l-2 border-border bg-secondary px-4 py-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm font-medium text-foreground">
@@ -818,7 +822,7 @@ export default function AdminAnalyticsPage() {
         isPriming={isPrimingAnalytics ? (
         <div className="flex min-h-[20vh] items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground">Syncing analytics...</p>
           </div>
         </div>
@@ -830,8 +834,8 @@ export default function AdminAnalyticsPage() {
         {state.activeTab === "commerce" ? <AdminAnalyticsCommerceTab {...state} /> : null}
 
         <Card className="min-w-0 gap-0 p-4 shadow-none" data-mobile-drilldown="true" data-desktop-flow-collapsed="true">
-        <details>
-          <summary className="min-h-11 cursor-pointer content-center py-2 text-sm font-medium">Tasks and notifications</summary>
+        <Disclosure>
+          <DisclosureSummary className="min-h-11 cursor-pointer content-center py-2 text-sm font-medium">Tasks and notifications</DisclosureSummary>
           <div className="mt-3">
             <AdminTaskAndNotificationModules
               renderSectionRangeControl={state.renderSectionRangeControl}
@@ -841,7 +845,7 @@ export default function AdminAnalyticsPage() {
               formatPercent={state.formatPercent}
             />
           </div>
-        </details>
+        </Disclosure>
         </Card>
 
         </div>

@@ -48,11 +48,11 @@ export function AdminAiDiagnosticsSection({ state }: { state: AdminAiState }) {
                                     {(data?.recentDiagnostics || []).map((entry) => (
                                         <div key={entry.id} className={cn("min-w-0 rounded-[1rem] border px-3 py-3", diagnosticTone(entry.severity))}>
                                             <div className="flex flex-wrap items-center justify-between gap-2">
-                                                <div className="text-sm font-semibold text-white">{entry.message}</div>
-                                                <div className="text-xs text-gray-300">{formatCompactTimestamp(entry.createdAtMs)}</div>
+                                                <div className="text-sm font-semibold text-foreground">{entry.message}</div>
+                                                <div className="text-xs text-muted-foreground">{formatCompactTimestamp(entry.createdAtMs)}</div>
                                             </div>
-                                            <div className="mt-1 break-all text-xs text-gray-300">{[entry.model, entry.generationMode, entry.failureCode, entry.jobId].filter(Boolean).join(" • ") || "No extra metadata"}</div>
-                                            {entry.summary ? <p className="mt-2 break-words text-xs text-gray-200">{entry.summary}</p> : null}
+                                            <div className="mt-1 break-all text-xs text-muted-foreground">{[entry.model, entry.generationMode, entry.failureCode, entry.jobId].filter(Boolean).join(" • ") || "No extra metadata"}</div>
+                                            {entry.summary ? <p className="mt-2 break-words text-xs text-foreground">{entry.summary}</p> : null}
                                         </div>
                                     ))}
                                 </div>

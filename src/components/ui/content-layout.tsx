@@ -10,6 +10,11 @@ export function ContentSection({ className, ...props }: ComponentProps<"section"
     return <section className={cn("min-w-0 space-y-6 scroll-mt-24", className)} {...props} />;
 }
 
+/** Opaque working surface; callers own grouping, content and state. */
+export function Surface({ className, ...props }: ComponentProps<"div">) {
+    return <div className={cn("min-w-0 rounded-2xl bg-card text-card-foreground", className)} {...props} />;
+}
+
 export function SectionHeader({ title, description, accessory, headingId, level = 2 }: {
     title: ReactNode;
     description?: ReactNode;

@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import type { ComponentProps, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -208,7 +212,7 @@ function UserAvatar({ user, size }: { user: UserProfile; size: "sm" | "lg" }) {
   const imageSize = size === "lg" ? "48px" : "40px";
 
   return (
-    <div className={["relative flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/35 font-black text-fuchsia-100", dimensions].join(" ")}>
+    <div className={["relative flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-background/35 font-semibold text-primary", dimensions].join(" ")}>
       {user.photoURL ? (
         <Image src={user.photoURL} alt={user.displayName || "User"} fill sizes={imageSize} className="object-cover" />
       ) : (
@@ -221,13 +225,13 @@ function UserAvatar({ user, size }: { user: UserProfile; size: "sm" | "lg" }) {
 function RoleBadge({ role }: { role?: UserProfile["role"] }) {
   const value = role || "user";
   const className = value === "admin"
-    ? "border-rose-300/20 bg-rose-400/10 text-rose-200"
+    ? "border-destructive/20 bg-destructive/10 text-destructive"
     : value === "creator"
-      ? "border-fuchsia-300/20 bg-fuchsia-400/10 text-fuchsia-100"
-      : "border-white/10 bg-white/5 text-slate-300";
+      ? "border-primary/20 bg-primary/10 text-primary"
+      : "border-border bg-secondary text-muted-foreground";
 
   return (
-    <span className={["inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em]", className].join(" ")}>
+    <span className={["inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide", className].join(" ")}>
       {value}
     </span>
   );
@@ -258,8 +262,8 @@ function DirectoryBehaviorSummary({ record }: { record: AdminUserDirectoryRecord
       <p className="break-words text-sm text-muted-foreground">{behavior.availability} / {behavior.issueCount} issues</p>
       <p className="break-words text-sm text-muted-foreground">Source: {behavior.source} / {behavior.confidence}</p>
       <p className="break-words text-sm text-muted-foreground">Consent: {behavior.consent} / {behavior.lowConfidence} low-confidence</p>
-      <details className="min-w-0 border-t border-border pt-2">
-        <summary className="min-h-11 cursor-pointer content-center break-words text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Metric source</summary>
+      <Disclosure className="min-w-0 border-t border-border pt-2">
+        <DisclosureSummary className="min-h-11 cursor-pointer content-center break-words text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Metric source</DisclosureSummary>
         <div className="mt-3 space-y-3 break-words text-sm leading-relaxed text-muted-foreground">
           <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3">
             <div><dt>Recorded events</dt><dd className="text-foreground">{behavior.activityEvents}</dd></div>
@@ -271,7 +275,7 @@ function DirectoryBehaviorSummary({ record }: { record: AdminUserDirectoryRecord
           <p>Missing: {behavior.missingMetric}</p>
           <p data-user-behavior-math-mode={behavior.mathMode}>Math: {behavior.mathMode} / {behavior.mathVerdict}</p>
         </div>
-      </details>
+      </Disclosure>
     </div>
   );
 }
@@ -358,8 +362,8 @@ export function AdminUserDirectory({
                   {behavior.loaded ? <DirectoryBehaviorSummary record={record} /> : (
                     <Button variant="outline" size="sm" type="button" onClick={() => onLoadDetail(user)} className="max-w-full whitespace-normal" data-admin-users-loading-lane="selectedUser" disabled={selectedDetailUserId === user.uid}>{selectedDetailUserId === user.uid ? "Loading detail" : "Load detail"}</Button>
                   )}
-                  <details className="min-w-0 border-t border-border pt-2">
-                    <summary className="min-h-11 cursor-pointer content-center break-words text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Account details and actions</summary>
+                  <Disclosure className="min-w-0 border-t border-border pt-2">
+                    <DisclosureSummary className="min-h-11 cursor-pointer content-center break-words text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Account details and actions</DisclosureSummary>
                     <div className="mt-4 min-w-0 space-y-5">
                       <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-4 break-words text-sm">
                         <div><dt className="text-muted-foreground">User ID</dt><dd className="break-all font-mono">{user.uid}</dd></div>
@@ -391,7 +395,7 @@ export function AdminUserDirectory({
                         </div>
                       </div>
                     </div>
-                  </details>
+                  </Disclosure>
                 </article>
               </li>
             );

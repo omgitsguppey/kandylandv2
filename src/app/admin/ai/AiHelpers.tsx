@@ -1,3 +1,4 @@
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { AdminMetricCard } from "@/components/Admin/AdminMetricCard";
 import type { AdminSurfaceState } from "@/lib/admin-parity";
@@ -35,40 +36,40 @@ export function formatCompactTimestamp(timestamp?: number | null) {
 export function runtimeTone(status?: AdminAiDropCoverRuntimeStatus) {
     switch (status) {
         case "ready":
-            return "border-emerald-400/20 bg-emerald-500/10 text-emerald-100";
+            return "border-success/20 bg-success/10 text-success";
         case "disabled":
-            return "border-white/10 bg-white/5 text-gray-200";
+            return "border-border bg-secondary text-foreground";
         default:
-            return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+            return "border-warning/20 bg-warning/10 text-warning";
     }
 }
 
 export function preflightTone(status?: AdminAiDropCoverPreflightCheck["status"]) {
     switch (status) {
         case "pass":
-            return "border-emerald-400/20 bg-emerald-500/10 text-emerald-100";
+            return "border-success/20 bg-success/10 text-success";
         case "fail":
-            return "border-red-400/20 bg-red-500/10 text-red-100";
+            return "border-destructive/20 bg-destructive/10 text-destructive";
         default:
-            return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+            return "border-warning/20 bg-warning/10 text-warning";
     }
 }
 
 export function diagnosticTone(severity?: AdminAiDropCoverRuntimeDiagnostic["severity"]) {
     switch (severity) {
         case "error":
-            return "border-red-400/20 bg-red-500/10 text-red-100";
+            return "border-destructive/20 bg-destructive/10 text-destructive";
         case "warn":
-            return "border-amber-400/20 bg-amber-500/10 text-amber-100";
+            return "border-warning/20 bg-warning/10 text-warning";
         default:
-            return "border-white/10 bg-white/5 text-gray-200";
+            return "border-border bg-secondary text-foreground";
     }
 }
 
 export function statTone(success: boolean) {
     return success
-        ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
-        : "border-white/10 bg-white/5 text-gray-200";
+        ? "border-success/20 bg-success/10 text-success"
+        : "border-border bg-secondary text-foreground";
 }
 
 export function resolveAdminAiDataState(input: {
@@ -156,17 +157,17 @@ export function TextAreaBlock({
     return (
         <label className="block space-y-2">
             <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">{label}</div>
-                {helper ? <p className="mt-1 text-xs text-gray-500">{helper}</p> : null}
+                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+                {helper ? <p className="mt-1 text-xs text-muted-foreground">{helper}</p> : null}
             </div>
-            <textarea
+            <Textarea
                 value={value}
                 onChange={(event) => onChange?.(event.target.value)}
                 rows={rows}
                 readOnly={readOnly}
                 className={cn(
-                    "w-full rounded-[1rem] border border-white/10 bg-black/35 px-3 py-3 text-sm text-white outline-none transition focus:border-brand-purple/50 focus:ring-1 focus:ring-brand-purple/40",
-                    readOnly ? "cursor-default text-gray-300" : ""
+                    "w-full rounded-[1rem] border border-border bg-background/35 px-3 py-3 text-sm text-foreground outline-none transition focus:border-primary/50 focus:ring-1 focus:ring-primary/40",
+                    readOnly ? "cursor-default text-muted-foreground" : ""
                 )}
             />
         </label>
@@ -183,8 +184,8 @@ export function EmptyState({
     action?: React.ReactNode;
 }) {
     return (
-        <div className="overflow-hidden rounded-[1.1rem] border border-dashed border-white/10 bg-black/25 px-4 py-5 text-sm text-gray-400">
-            <div className="font-semibold text-white">{title}</div>
+        <div className="overflow-hidden rounded-[1.1rem] border border-dashed border-border bg-background/25 px-4 py-5 text-sm text-muted-foreground">
+            <div className="font-semibold text-foreground">{title}</div>
             <p className="mt-1 break-words">{detail}</p>
             {action ? <div className="mt-3">{action}</div> : null}
         </div>

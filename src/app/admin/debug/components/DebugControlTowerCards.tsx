@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { ChevronDown, DollarSign, LayoutGrid, LifeBuoy, Radar, ShieldCheck, Signal, type LucideIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -171,14 +175,14 @@ export function FindingCard({ finding, compact = false }: { finding: AdminDebugF
             <p className="mt-2 text-xs leading-5 text-foreground">{finding.humanReadableWarning}</p>
             <p className="mt-2 text-sm font-semibold text-foreground">{finding.suggestedValidator}</p>
             {finding.evidence.length > 0 ? (
-                <details className="mt-2 min-w-0 border-t border-border text-sm">
-                    <summary className="flex min-h-11 cursor-pointer items-center py-3 text-foreground">Evidence</summary>
+                <Disclosure className="mt-2 min-w-0 border-t border-border text-sm">
+                    <DisclosureSummary className="flex min-h-11 cursor-pointer items-center py-3 text-foreground">Evidence</DisclosureSummary>
                     <ul className="mt-1 list-disc space-y-1 pl-4 text-muted-foreground">
                         {finding.evidence.map((entry, index) => (
                             <li key={`${finding.id}-evidence-${index}`}>{entry}</li>
                         ))}
                     </ul>
-                </details>
+                </Disclosure>
             ) : null}
         </article>
     );
@@ -215,22 +219,22 @@ export function ReportCard({ report }: { report: AdminDebugReportCard }) {
                     </span>
                 ) : null}
             </div>
-            <details className="mt-2 min-w-0 border-t border-border text-sm text-muted-foreground">
-                <summary className="flex min-h-11 cursor-pointer items-center py-3 font-semibold text-foreground">Why this state</summary>
+            <Disclosure className="mt-2 min-w-0 border-t border-border text-sm text-muted-foreground">
+                <DisclosureSummary className="flex min-h-11 cursor-pointer items-center py-3 font-semibold text-foreground">Why this state</DisclosureSummary>
                 <p className="mt-1">{display.sourceDetail} Next check: {report.command}</p>
-            </details>
+            </Disclosure>
             {report.topFindings.length > 0 ? (
-                <details className="mt-3 min-w-0 border-t border-border py-2 text-xs text-muted-foreground">
-                    <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 font-semibold text-foreground">
+                <Disclosure className="mt-3 min-w-0 border-t border-border py-2 text-xs text-muted-foreground">
+                    <DisclosureSummary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 font-semibold text-foreground">
                         Top findings
                         <ChevronDown className="h-4 w-4" />
-                    </summary>
+                    </DisclosureSummary>
                     <div className="mt-2 space-y-2">
                         {report.topFindings.map((finding) => (
                             <FindingCard key={finding.id} finding={finding} compact />
                         ))}
                     </div>
-                </details>
+                </Disclosure>
             ) : null}
         </Card>
     );
@@ -273,10 +277,10 @@ export function LiveIssueCard({ issue }: { issue: AdminDebugLiveIssueCard }) {
                 <p className="mt-2 text-xs text-foreground">{note}</p>
             ) : null}
             <p className="mt-2 text-xs text-muted-foreground">Fingerprint {issue.fingerprint} | {issue.occurrenceCount}x | {formatRelative(issue.lastSeenAt)}</p>
-            <details className="mt-2 min-w-0 border-t border-border text-sm text-muted-foreground">
-                <summary className="flex min-h-11 cursor-pointer items-center py-3 font-semibold text-foreground">Evidence handling</summary>
+            <Disclosure className="mt-2 min-w-0 border-t border-border text-sm text-muted-foreground">
+                <DisclosureSummary className="flex min-h-11 cursor-pointer items-center py-3 font-semibold text-foreground">Evidence handling</DisclosureSummary>
                 <p className="mt-1">Raw support/user bodies stay redacted and collapsed.</p>
-            </details>
+            </Disclosure>
         </article>
     );
 }

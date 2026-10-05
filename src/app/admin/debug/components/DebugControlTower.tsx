@@ -1,5 +1,9 @@
 "use client";
 
+import { DisclosureSummary } from "@/components/ui/disclosure";
+import { Disclosure } from "@/components/ui/disclosure";
+
+
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Clock3 } from "lucide-react";
 import { AdminStatusBadge } from "@/components/Admin/AdminStatusBadge";
@@ -149,7 +153,7 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                 </div>
                 {model ? (
                     <p
-                        className="mt-3 border-t border-white/10 pt-3 text-sm leading-5 text-muted-foreground"
+                        className="mt-3 border-t border-border pt-3 text-sm leading-5 text-muted-foreground"
                         data-debug-visible-summary="single-triage-strip"
                         data-debug-report-source="agent/state/public-beta-score.generated.json"
                     >
@@ -207,14 +211,14 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
             </div> : null}
 
             {model ? (
-                <details
+                <Disclosure
                     className="min-w-0 border-t border-border pt-2 text-sm text-muted-foreground"
                     data-debug-report-source="source-detail"
                     data-debug-default-details="collapsed"
                 >
-                    <summary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">
+                    <DisclosureSummary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">
                         Details and next steps
-                    </summary>
+                    </DisclosureSummary>
                     <div className="mt-3 space-y-3">
                         <section className="min-w-0 space-y-3" data-debug-report-source="triage-summary">
                             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -271,14 +275,14 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                         </div>
 
                         {topFindings.length > 0 ? (
-                            <details className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-muted-foreground" data-debug-report-source="top-findings">
-                                <summary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">Top findings</summary>
+                            <Disclosure className="rounded-md border border-border bg-background/20 px-2 py-1 text-xs text-muted-foreground" data-debug-report-source="top-findings">
+                                <DisclosureSummary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">Top findings</DisclosureSummary>
                                 <div className="mt-2 grid gap-2">
                                     {topFindings.map((finding) => (
                                         <FindingCard key={`top-${finding.id}`} finding={finding} compact />
                                     ))}
                                 </div>
-                            </details>
+                            </Disclosure>
                         ) : null}
 
 
@@ -303,8 +307,8 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                             />
                         ) : null}
 
-                        <details className="min-w-0 border-t border-border">
-                            <summary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">Filters and evidence rows ({visibleReports})</summary>
+                        <Disclosure className="min-w-0 border-t border-border">
+                            <DisclosureSummary className="flex min-h-11 cursor-pointer items-center py-3 font-medium text-foreground">Filters and evidence rows ({visibleReports})</DisclosureSummary>
                             <div className="mt-2 flex min-w-0 flex-wrap gap-2">
                                 {FILTERS.map((filter) => {
                                     const active = activeFilter === filter.id;
@@ -332,11 +336,11 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                                     return (
                                         <section key={sectionId} className="min-w-0 space-y-3" data-debug-report-source={sectionId}>
                                             <div className="flex items-start gap-3">
-                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-secondary">
                                                     <SectionIcon className="h-5 w-5 text-foreground" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-foreground">{section.title}</h3>
+                                                    <h3 className="font-semibold text-foreground">{section.title}</h3>
                                                     <p className="text-xs leading-5 text-muted-foreground">{section.subtitle}</p>
                                                 </div>
                                             </div>
@@ -349,9 +353,9 @@ export function DebugControlTower({ businessSnapshot, isLocalAdminUiTestSession 
                                     );
                                 })}
                             </div>
-                        </details>
+                        </Disclosure>
                     </div>
-                </details>
+                </Disclosure>
             ) : null}
         </section>
     );
